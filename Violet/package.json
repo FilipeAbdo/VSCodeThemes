@@ -16,6 +16,10 @@
         "uiTheme": "vs-dark",
         "path": "./themes/VS Code Violet Theme-color-theme.json"
       }
-    ]
+    ],
+    "configurationDefaults": {
+      "workbench.experimental.modernUI": true,
+      "workbench.experimental.modernUIEditorTabStyle": "pill"
+    }
   }
 }

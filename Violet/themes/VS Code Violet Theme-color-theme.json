@@ -1,10 +1,34 @@
 {
 	"name": "VS Code Violet Theme",
 	"colors": {
-		"editor.background": "#263238",
+		"editor.background": "#12001c",
 		"editor.foreground": "#eeffff",
-		"activityBarBadge.background": "#007acc",
-		"sideBarTitle.foreground": "#bbbbbb"
+		"surface.background": "#12001c",
+		"sideBar.background": "#47364f",
+		
+		
+		"modernEditorTab.activeBackground": "#9f4fc97f",
+		"modernEditorTab.activeActionBackground": "#00FF00",
+		"modernEditorTab.activeHoverBackground": "#b01dff",
+		
+		"modernTab.activeBackground": "#9f4fc97f",
+		"modernTab.hoverBackground": "#b01dff",
+		"modernTab.activeForeground": "#ffffff",
+		"activityBarBadge.background": "#be45ff",
+		"activityBarBadge.foreground": "#ffffff",
+		"statusBar.background": "#8916c6",
+		"modernPanel.border": "#b01dff",
+		
+		"list.activeSelectionBackground": "#9f4fc97f",
+		"list.hoverBackground": "#b01dff",
+		"list.hoverForeground": "#ffffff",
+		"list.activeSelectionForeground": "#ffffff",
+		"list.warningForeground": "#F78C6C",
+		
+		"titleBar.activeBackground": "#796383",
+		"modernUI.shellBackground": "#382a3c",
+		"titleBar.inactiveBackground": "#12001c",
+		"modernUI.inactiveShellBackground": "#251c28",
 	},
 	"tokenColors": [
 		{
@@ -353,7 +377,7 @@
 				"source.json meta.structure.dictionary.json support.type.property-name.json"
 			],
 			"settings": {
-				"foreground": "#C792EA"
+				"foreground": "#d792ea"
 			}
 		},
 		{
