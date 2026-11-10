@@ -1,0 +1,21 @@
+{
+  "name": "violettheme",
+  "displayName": "VioletTheme",
+  "description": "VS Code Color Theme Violet based",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.145.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "VS Code Violet Theme",
+        "uiTheme": "vs-dark",
+        "path": "./themes/VS Code Violet Theme-color-theme.json"
+      }
+    ]
+  }
+}
