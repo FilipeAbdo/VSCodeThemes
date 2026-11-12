@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <clipPath id="tile"><rect x="4" y="4" width="248" height="248" rx="40"/></clipPath>
+    <linearGradient id="ribbon" x2="0.5" y2="1">
+      <stop stop-color="#deacde"/>
+      <stop offset="1" stop-color="#9e4a9e"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="256" height="256" fill="#180025"/>
+    <g id="editor-backdrop">
+      <rect x="4" y="4" width="248" height="34" fill="#180025"/>
+      <rect x="17" y="12" width="107" height="22" rx="9" fill="#711971"/>
+      <text x="30" y="27" font-family="Consolas, monospace" font-size="11" fill="#e3f8f8">violet.js</text>
+      <g font-family="Consolas, monospace" font-size="11">
+        <g fill="#4c8f95" font-size="9">
+          <text x="15" y="61">1</text><text x="15" y="83">2</text>
+          <text x="15" y="105">3</text><text x="15" y="127">4</text>
+          <text x="15" y="149">5</text><text x="15" y="171">6</text>
+          <text x="15" y="193">7</text><text x="15" y="215">8</text>
+          <text x="15" y="237">9</text>
+        </g>
+        <g id="code-snippet" font-size="9">
+<text x="33" y="61" xml:space="preserve"><tspan data-scope="comment" fill="#39884b" font-style="italic" font-weight="normal">// A little more violet</tspan></text>
+<text x="33" y="83" xml:space="preserve"></text>
+<text x="33" y="105" xml:space="preserve"><tspan data-scope="storage.type" fill="#be75be" font-style="italic" font-weight="bold">const </tspan><tspan data-scope="variable" fill="#4c8f95" font-style="normal" font-weight="normal">var</tspan><tspan data-scope="keyword" fill="#be75be" font-style="italic" font-weight="bold"> = </tspan><tspan data-scope="string" fill="#C3E88D" font-style="normal" font-weight="normal">&quot;Violet&quot;</tspan></text>
+<text x="33" y="127" xml:space="preserve"></text>
+<text x="33" y="149" xml:space="preserve"><tspan data-scope="storage.type" fill="#be75be" font-style="italic" font-weight="bold">class </tspan><tspan data-scope="entity.name" fill="#FFCB6B" font-style="normal" font-weight="normal">VioletTheme</tspan><tspan data-scope="punctuation" fill="#89DDFF" font-style="normal" font-weight="normal">{</tspan></text>
+<text x="33" y="171" xml:space="preserve">    <tspan data-scope="storage.type" fill="#be75be" font-style="italic" font-weight="bold">function </tspan><tspan data-scope="entity.name.function" fill="#82AAFF" font-style="italic" font-weight="normal">makeitViolet</tspan><tspan data-scope="punctuation" fill="#89DDFF" font-style="normal" font-weight="normal">(</tspan><tspan data-scope="variable.parameter" fill="#F78C6C" font-style="normal" font-weight="normal">a</tspan><tspan data-scope="punctuation" fill="#89DDFF" font-style="normal" font-weight="normal">, </tspan><tspan data-scope="variable.parameter" fill="#F78C6C" font-style="normal" font-weight="normal">b</tspan><tspan data-scope="punctuation" fill="#89DDFF" font-style="normal" font-weight="normal">){</tspan></text>
+<text x="33" y="193" xml:space="preserve">        <tspan data-scope="variable" fill="#4c8f95" font-style="normal" font-weight="normal">var</tspan><tspan data-scope="keyword" fill="#be75be" font-style="italic" font-weight="bold"> = </tspan><tspan data-scope="constant.numeric" fill="#F78C6C" font-style="normal" font-weight="normal">10.2</tspan><tspan data-scope="punctuation" fill="#89DDFF" font-style="normal" font-weight="normal">;</tspan></text>
+<text x="33" y="215" xml:space="preserve">    <tspan data-scope="punctuation" fill="#89DDFF" font-style="normal" font-weight="normal">}</tspan></text>
+<text x="33" y="237" xml:space="preserve"><tspan data-scope="punctuation" fill="#89DDFF" font-style="normal" font-weight="normal">};</tspan></text>
+</g>
+      </g>
+    </g>
+    <rect id="backdrop-dimmer" width="256" height="256" fill="#180025" opacity=".35"/>
+    <g id="violet-mark">
+      <path d="M47 64h45l37 99 35-99h45l-61 155h-40z" fill="#180025" stroke="#180025" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M164 64h45l-61 155h-40z" fill="url(#ribbon)"/>
+      <path d="m47 64 61 155 21-56-37-99z" fill="#be75be"/>
+      <path id="contrast-diamond" d="m128 29 9 13-9 13-9-13z" fill="#89DDFF"/>
+    </g>
+  </g>
+  <rect x="5" y="5" width="246" height="246" rx="39" fill="none" stroke="#be75be" stroke-opacity=".5" stroke-width="2"/>
+</svg>

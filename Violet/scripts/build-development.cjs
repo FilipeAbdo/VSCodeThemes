@@ -17,6 +17,9 @@ module.exports = function buildDevelopment(root, destination) {
 	const files = [
 		manifest.main,
 		manifest.icon,
+		"images/icon.svg",
+		"README.md",
+		"images/palette.png",
 		"themes/decoration-styles.json",
 		...manifest.contributes.themes.map(theme => theme.path)
 	];

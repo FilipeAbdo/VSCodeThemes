@@ -120,14 +120,35 @@ and a monospace code stack, with italic comments matching the theme.
 Every `npm run build` refreshes all three generated files. The existing watcher
 does the same when source files are saved, including `src/palette.cjs`.
 
+### README image
+
+The Extensions page blocks local image URLs. The build embeds the palette PNG
+as a data URI directly in the README's palette image, refreshing it after each
+render. Keep the image's alt text starting with "Violet Theme color palette"
+so the build can locate it. No external image host is needed.
+
 ### Extension icon
 
-The extension icon is authored in [src/icon.svg](src/icon.svg): a folded violet
-V on a dark violet tile with a cyan accent, using colors from the theme palette.
-Edit the SVG to change the artwork or its colors. Each build renders it locally
+The extension icon is authored in [images/icon-source.svg](images/icon-source.svg): an editor tab
+and code behind a centered violet V and cyan diamond. The backdrop is dimmed
+independently of the mark. CSS color variables have
+fallback colors for standalone viewing; the build resolves them from the theme
+palette into [images/icon.svg](images/icon.svg).
+The renderer in [scripts/render-icon.cjs](scripts/render-icon.cjs) generates
+the snippet from explicitly scoped tokens and reads their foreground, bold,
+and italic settings directly from `src/theme.cjs`. This is a themed illustration,
+not a screenshot or a full JavaScript grammar/semantic-token renderer.
+Edit the source SVG to change the artwork. Each build renders it locally
 to a 256 by 256 [images/icon.png](images/icon.png), referenced by the manifest's
 `icon` field and included in release, local, and F5 development installations.
-Commit both the SVG source and generated PNG.
+Commit the SVG source, generated SVG, and PNG.
+Watch mode monitors only the source SVG, not the generated images, to avoid rebuild loops.
+
+Release builds (`npm run build`, `vscode:prepublish`, and
+`npm run install:local:release`) regenerate the icon automatically, as do
+development builds. No AI service is needed during a build.
+The workspace **Violet Icon** Copilot agent provides on-demand artwork maintenance
+and visual review; it is not automatically launched by npm.
 
 ### GitHub automation
 

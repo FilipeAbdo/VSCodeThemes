@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'Violet/src/**'
+      - 'Violet/images/icon-source.svg'
       - 'Violet/scripts/**'
       - 'Violet/package.json'
       - 'Violet/package-lock.json'
@@ -11,6 +12,7 @@ on:
   pull_request:
     paths:
       - 'Violet/src/**'
+      - 'Violet/images/icon-source.svg'
       - 'Violet/scripts/**'
       - 'Violet/package.json'
       - 'Violet/package-lock.json'
@@ -46,3 +48,5 @@ jobs:
             Violet/palette.html
             Violet/images/palette.png
             Violet/images/icon.png
+            Violet/images/icon.svg
+            Violet/README.md

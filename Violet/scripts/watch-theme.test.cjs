@@ -23,7 +23,11 @@ test("watch rebuilds palette changes and restores managed manifest colors", { ti
 	fs.copyFileSync(path.join(__dirname, "build-development.cjs"), path.join(scripts, "build-development.cjs"));
 	fs.writeFileSync(path.join(root, "extension.cjs"), "module.exports = {};\n");
 	fs.mkdirSync(path.join(root, "images"));
+	fs.copyFileSync(path.join(__dirname, "..", "images", "icon-source.svg"), path.join(root, "images", "icon-source.svg"));
 	fs.copyFileSync(path.join(__dirname, "..", manifest.icon), path.join(root, manifest.icon));
+	fs.copyFileSync(path.join(__dirname, "..", "images", "icon.svg"), path.join(root, "images", "icon.svg"));
+	fs.copyFileSync(path.join(__dirname, "..", "README.md"), path.join(root, "README.md"));
+	fs.copyFileSync(path.join(__dirname, "..", "images", "palette.png"), path.join(root, "images", "palette.png"));
 	fs.writeFileSync(path.join(scripts, "render-palette.cjs"), "module.exports = async () => {};\n");
 	fs.writeFileSync(path.join(src, "theme.cjs"), `const color = require("./palette.cjs");
 module.exports = {

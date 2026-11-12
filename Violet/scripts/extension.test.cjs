@@ -119,6 +119,78 @@ test("extension icon is a 256 by 256 PNG", () => {
 	assert.equal(icon.readUInt32BE(20), 256);
 });
 
+test("README embeds the exact palette PNG without a local image URL", () => {
+	const root = path.join(__dirname, "..");
+	const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+	const image = readme.match(/!\[Violet Theme color palette[^\]]*\]\(data:image\/png;base64,([A-Za-z0-9+/=]+)\)/);
+	assert.ok(image, "README must contain an embedded palette image");
+	assert.deepStrictEqual(Buffer.from(image[1], "base64"), fs.readFileSync(path.join(root, "images", "palette.png")));
+});
+
+test("generated editor icon resolves the current theme colors", () => {
+	const root = path.join(__dirname, "..");
+	const { common, tokens } = require("../src/palette.cjs");
+	const svg = fs.readFileSync(path.join(root, "images", "icon.svg"), "utf8");
+	assert.equal(svg.includes("var(--"), false);
+	for (const color of [common.background, tokens.keywordStorage, tokens.entityNameMethodJs]) {
+		assert.ok(svg.includes(color), `Icon should include ${color}`);
+	}
+	assert.ok(svg.includes("violet.js"));
+	assert.ok(svg.includes('id="contrast-diamond"'));
+	assert.ok(svg.includes('id="backdrop-dimmer"'));
+	assert.equal(svg.includes("FILES"), false);
+	const snippet = svg.match(/<g id="code-snippet"[^>]*>([\s\S]*?)<\/g>/)[1];
+	const lines = Array.from(snippet.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g), match =>
+		match[1].replace(/<[^>]+>/g, "").replace(/&quot;/g, '"')
+	);
+	assert.deepStrictEqual(lines, [
+		"// A little more violet", "", 'const var = "Violet"', "",
+		"class VioletTheme{", "    function makeitViolet(a, b){",
+		"        var = 10.2;", "    }", "};"
+	]);
+	assert.match(svg, /id="backdrop-dimmer"[^>]*opacity="\.35"/);
+	const theme = require("../src/theme.cjs");
+	for (const scope of ["comment", "storage.type", "variable", "keyword", "string", "constant.numeric", "entity.name.function", "punctuation"]) {
+		const settings = {};
+		for (const rule of theme.tokenColors) {
+			if ((Array.isArray(rule.scope) ? rule.scope : [rule.scope]).includes(scope)) Object.assign(settings, rule.settings);
+		}
+		const styles = new Set((settings.fontStyle || "").split(" "));
+		assert.ok(svg.includes(`data-scope="${scope}" fill="${settings.foreground}" font-style="${styles.has("italic") ? "italic" : "normal"}" font-weight="${styles.has("bold") ? "bold" : "normal"}"`), `Icon must match theme style for ${scope}`);
+	}
+});
+
+test("icon renderer picks up theme changes on the next build", async () => {
+	const theme = structuredClone(require("../src/theme.cjs"));
+	theme.colors["editor.background"] = "#123456";
+	theme.tokenColors.find(rule => rule.name === "Keyword, Storage").settings = {
+		foreground: "#abcdef", fontStyle: "bold"
+	};
+	let svg;
+	const sandbox = {
+		module: { exports: {} },
+		__dirname,
+		require(name) {
+			if (name === "../src/theme.cjs") return theme;
+			if (name === "node:fs") return {
+				readFileSync: fs.readFileSync,
+				mkdirSync() {},
+				writeFileSync(file, value) { svg = value; }
+			};
+			return require(name);
+		}
+	};
+	vm.runInNewContext(fs.readFileSync(path.join(__dirname, "render-icon.cjs"), "utf8"), sandbox);
+	await sandbox.module.exports({
+		async setViewportSize() {},
+		async goto() {},
+		async evaluate() {},
+		async screenshot() {}
+	});
+	assert.ok(svg.includes('fill="#123456"'));
+	assert.ok(svg.includes('data-scope="storage.type" fill="#abcdef" font-style="normal" font-weight="bold"'));
+});
+
 for (const development of [false, true]) test(`unused decorations and command registration in ${development ? "development" : "release"}`, () => {
 	const listeners = {};
 	const settings = {

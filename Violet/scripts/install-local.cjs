@@ -25,6 +25,7 @@ async function installLocal() {
 		"package.json",
 		manifest.main,
 		manifest.icon,
+		"images/icon.svg",
 		"themes/decoration-styles.json",
 		...manifest.contributes.themes.map(theme => theme.path),
 		"README.md",
