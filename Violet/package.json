@@ -1,6 +1,7 @@
 {
   "name": "violettheme",
-  "displayName": "VioletTheme",
+  "displayName": "Violet Theme",
+  "publisher": "FilipeAbdo",
   "icon": "images/icon.png",
   "description": "VS Code Color Theme Violet [Dark]",
   "version": "0.1.0",
