@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Violet Theme | Color palette</title>
+	<style>
+		:root {
+			color-scheme: dark;
+			font-family: "Segoe UI", system-ui, sans-serif;
+			--background: #180025;
+			--foreground: #e3f8f8;
+			--surface: #3d293d;
+			--shell: #382a3c;
+			--accent: #2c5256;
+			--selection: #711971;
+			--label: #4c8f95;
+			--method: #82AAFF;
+			--punctuation: #89DDFF;
+			--number: #F78C6C;
+			--string: #C3E88D;
+			--keyword: #be75be;
+			--comment: #39884b;
+			background: var(--background);
+			color: var(--foreground);
+		}
+		* { box-sizing: border-box; }
+		body { margin: 0; padding: 48px 24px; background: radial-gradient(ellipse at top, var(--surface), transparent 70%); min-height: 100vh; }
+		main { max-width: 1080px; margin: auto; }
+		.eyebrow { color: var(--label); text-transform: uppercase; letter-spacing: .18em; font-size: .75rem; font-weight: 700; }
+		h1 { margin: 12px 0; font-size: clamp(2rem, 6vw, 3.5rem); letter-spacing: -.04em; }
+		.description { color: var(--foreground); line-height: 1.7; max-width: 640px; }
+		.palette { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 18px; padding: 0; margin: 32px 0; list-style: none; }
+		.card { padding: 12px 12px 18px; border: 1px solid var(--accent); border-radius: 18px; background: var(--surface); box-shadow: 0 8px 24px undefined; transition: transform .18s ease, border-color .18s ease; }
+		.card:hover { transform: translateY(-4px); border-color: var(--selection); }
+		.checker { overflow: hidden; border: 4px solid var(--accent); border-radius: 10px; background: conic-gradient(var(--shell) 25%, var(--foreground) 0 50%, var(--shell) 0 75%, var(--foreground) 0) 0 0 / 16px 16px; }
+		.swatch { height: 96px; }
+		section { margin-top: 40px; }
+		h2 { font-size: 1.4rem; margin: 0; padding-bottom: 12px; border-bottom: 1px solid var(--accent); }
+		h3 { font-size: .95rem; font-weight: 600; margin: 16px 4px 8px; overflow-wrap: anywhere; }
+		.color-values { list-style: none; margin: 0 4px; padding: 0; }
+		.color-values li { margin-top: 8px; }
+		.value-label { color: var(--label); font-size: .8rem; }
+		code { font-family: Consolas, "Courier New", monospace; font-size: .8rem; user-select: all; overflow-wrap: anywhere; }
+		.syntax-method { color: var(--method); }
+		.syntax-punctuation { color: var(--punctuation); }
+		.syntax-number { color: var(--number); }
+		.syntax-string { color: var(--string); }
+		.syntax-keyword { color: var(--keyword); }
+		.syntax-variable { color: var(--label); }
+		.syntax-comment { color: var(--comment); font-style: italic; }
+		.code-preview { padding: 24px; border: 1px solid var(--accent); border-radius: 18px; background: var(--background); overflow-x: auto; line-height: 1.8; }
+		.code-preview code { font-size: .95rem; user-select: text; }
+		::selection { background: var(--selection); color: var(--foreground); }
+		footer { color: var(--foreground); font-size: .85rem; line-height: 1.7; }
+		@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+	</style>
+</head>
+<body>
+	<main>
+		<header>
+			<p class="eyebrow">VS Code Violet Theme</p>
+			<h1>A little more violet.</h1>
+			<p class="description">Deep purples, soft contrasts, and colorful accents. Explore the shared palette behind Violet Theme. Select a HEX, RGB, or HSL value to copy it.</p>
+		</header>
+		<section aria-labelledby="syntax-preview">
+			<h2 id="syntax-preview">The palette in action</h2>
+			<p class="description">Actual theme colors for keywords, variables, methods, parentheses, numbers, strings, and italic comments.</p>
+			<pre class="code-preview"><code><span class="syntax-comment">// A small sample of Violet Theme</span>
+<span class="syntax-keyword">const</span> <span class="syntax-variable">accent</span> <span class="syntax-punctuation">=</span> <span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">44</span><span class="syntax-punctuation">, </span><span class="syntax-number">82</span><span class="syntax-punctuation">, </span><span class="syntax-number">86</span><span class="syntax-punctuation">)</span><span class="syntax-punctuation">;</span>
+<span class="syntax-method">paint</span><span class="syntax-punctuation">(</span><span class="syntax-string">"Violet"</span><span class="syntax-punctuation">, </span><span class="syntax-variable">accent</span><span class="syntax-punctuation">);</span></code></pre>
+		</section>
+		<section aria-labelledby="palette-section-0">
+			<h2 id="palette-section-0">Violet</h2>
+			<ul class="palette" aria-labelledby="palette-section-0"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #180025"></div></div>
+			<h3>Dark Violet</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#180025</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">24</span><span class="syntax-punctuation">, </span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">37</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">279</span><span class="syntax-punctuation">, </span><span class="syntax-number">100%</span><span class="syntax-punctuation">, </span><span class="syntax-number">7%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #3d293d"></div></div>
+			<h3>Greyish Violet</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#3D293D</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">61</span><span class="syntax-punctuation">, </span><span class="syntax-number">41</span><span class="syntax-punctuation">, </span><span class="syntax-number">61</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">300</span><span class="syntax-punctuation">, </span><span class="syntax-number">20%</span><span class="syntax-punctuation">, </span><span class="syntax-number">20%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #711971"></div></div>
+			<h3>Violet</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#711971</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">113</span><span class="syntax-punctuation">, </span><span class="syntax-number">25</span><span class="syntax-punctuation">, </span><span class="syntax-number">113</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">300</span><span class="syntax-punctuation">, </span><span class="syntax-number">64%</span><span class="syntax-punctuation">, </span><span class="syntax-number">27%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #872e87"></div></div>
+			<h3>Violet 2<sup>nd</sup> Tone</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#872E87</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">135</span><span class="syntax-punctuation">, </span><span class="syntax-number">46</span><span class="syntax-punctuation">, </span><span class="syntax-number">135</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">300</span><span class="syntax-punctuation">, </span><span class="syntax-number">49%</span><span class="syntax-punctuation">, </span><span class="syntax-number">35%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #9e4a9e"></div></div>
+			<h3>Violet 3<sup>rd</sup> Tone</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#9E4A9E</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">158</span><span class="syntax-punctuation">, </span><span class="syntax-number">74</span><span class="syntax-punctuation">, </span><span class="syntax-number">158</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">300</span><span class="syntax-punctuation">, </span><span class="syntax-number">36%</span><span class="syntax-punctuation">, </span><span class="syntax-number">45%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #be75be"></div></div>
+			<h3>Violet 4<sup>th</sup> Tone</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#BE75BE</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">190</span><span class="syntax-punctuation">, </span><span class="syntax-number">117</span><span class="syntax-punctuation">, </span><span class="syntax-number">190</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">300</span><span class="syntax-punctuation">, </span><span class="syntax-number">36%</span><span class="syntax-punctuation">, </span><span class="syntax-number">60%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #deacde"></div></div>
+			<h3>Violet 5<sup>th</sup> Tone</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#DEACDE</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">222</span><span class="syntax-punctuation">, </span><span class="syntax-number">172</span><span class="syntax-punctuation">, </span><span class="syntax-number">222</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">300</span><span class="syntax-punctuation">, </span><span class="syntax-number">43%</span><span class="syntax-punctuation">, </span><span class="syntax-number">77%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+<section aria-labelledby="palette-section-1">
+			<h2 id="palette-section-1">Contrast Colors</h2>
+			<ul class="palette" aria-labelledby="palette-section-1"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #214549"></div></div>
+			<h3>Darker Foreground</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#214549</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">33</span><span class="syntax-punctuation">, </span><span class="syntax-number">69</span><span class="syntax-punctuation">, </span><span class="syntax-number">73</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">186</span><span class="syntax-punctuation">, </span><span class="syntax-number">38%</span><span class="syntax-punctuation">, </span><span class="syntax-number">21%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #2c5256"></div></div>
+			<h3>Dark Foreground</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#2C5256</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">44</span><span class="syntax-punctuation">, </span><span class="syntax-number">82</span><span class="syntax-punctuation">, </span><span class="syntax-number">86</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">186</span><span class="syntax-punctuation">, </span><span class="syntax-number">32%</span><span class="syntax-punctuation">, </span><span class="syntax-number">25%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #4c8f95"></div></div>
+			<h3>Medium Foreground</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#4C8F95</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">76</span><span class="syntax-punctuation">, </span><span class="syntax-number">143</span><span class="syntax-punctuation">, </span><span class="syntax-number">149</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">185</span><span class="syntax-punctuation">, </span><span class="syntax-number">32%</span><span class="syntax-punctuation">, </span><span class="syntax-number">44%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #e3f8f8"></div></div>
+			<h3>Light Foreground</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#E3F8F8</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">227</span><span class="syntax-punctuation">, </span><span class="syntax-number">248</span><span class="syntax-punctuation">, </span><span class="syntax-number">248</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">180</span><span class="syntax-punctuation">, </span><span class="syntax-number">60%</span><span class="syntax-punctuation">, </span><span class="syntax-number">93%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+<section aria-labelledby="palette-section-2">
+			<h2 id="palette-section-2">Red Tones</h2>
+			<ul class="palette" aria-labelledby="palette-section-2"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #FF5370"></div></div>
+			<h3>Red</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#FF5370</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">255</span><span class="syntax-punctuation">, </span><span class="syntax-number">83</span><span class="syntax-punctuation">, </span><span class="syntax-number">112</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">350</span><span class="syntax-punctuation">, </span><span class="syntax-number">100%</span><span class="syntax-punctuation">, </span><span class="syntax-number">66%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #f07178"></div></div>
+			<h3>Coral</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#F07178</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">240</span><span class="syntax-punctuation">, </span><span class="syntax-number">113</span><span class="syntax-punctuation">, </span><span class="syntax-number">120</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">357</span><span class="syntax-punctuation">, </span><span class="syntax-number">81%</span><span class="syntax-punctuation">, </span><span class="syntax-number">69%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #F78C6C"></div></div>
+			<h3>Orange</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#F78C6C</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">247</span><span class="syntax-punctuation">, </span><span class="syntax-number">140</span><span class="syntax-punctuation">, </span><span class="syntax-number">108</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">14</span><span class="syntax-punctuation">, </span><span class="syntax-number">90%</span><span class="syntax-punctuation">, </span><span class="syntax-number">70%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+<section aria-labelledby="palette-section-3">
+			<h2 id="palette-section-3">Yellow Tones</h2>
+			<ul class="palette" aria-labelledby="palette-section-3"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #634f12"></div></div>
+			<h3>Dark Mustard</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#634F12</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">99</span><span class="syntax-punctuation">, </span><span class="syntax-number">79</span><span class="syntax-punctuation">, </span><span class="syntax-number">18</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">45</span><span class="syntax-punctuation">, </span><span class="syntax-number">69%</span><span class="syntax-punctuation">, </span><span class="syntax-number">23%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #fdbe01"></div></div>
+			<h3>Mustard</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#FDBE01</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">253</span><span class="syntax-punctuation">, </span><span class="syntax-number">190</span><span class="syntax-punctuation">, </span><span class="syntax-number">1</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">45</span><span class="syntax-punctuation">, </span><span class="syntax-number">99%</span><span class="syntax-punctuation">, </span><span class="syntax-number">50%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #FFCB6B"></div></div>
+			<h3>Yellow</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#FFCB6B</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">255</span><span class="syntax-punctuation">, </span><span class="syntax-number">203</span><span class="syntax-punctuation">, </span><span class="syntax-number">107</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">39</span><span class="syntax-punctuation">, </span><span class="syntax-number">100%</span><span class="syntax-punctuation">, </span><span class="syntax-number">71%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+<section aria-labelledby="palette-section-4">
+			<h2 id="palette-section-4">Green Tones</h2>
+			<ul class="palette" aria-labelledby="palette-section-4"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #39884b"></div></div>
+			<h3>Muted</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#39884B</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">57</span><span class="syntax-punctuation">, </span><span class="syntax-number">136</span><span class="syntax-punctuation">, </span><span class="syntax-number">75</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">134</span><span class="syntax-punctuation">, </span><span class="syntax-number">41%</span><span class="syntax-punctuation">, </span><span class="syntax-number">38%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #C3E88D"></div></div>
+			<h3>Green</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#C3E88D</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">195</span><span class="syntax-punctuation">, </span><span class="syntax-number">232</span><span class="syntax-punctuation">, </span><span class="syntax-number">141</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">84</span><span class="syntax-punctuation">, </span><span class="syntax-number">66%</span><span class="syntax-punctuation">, </span><span class="syntax-number">73%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+<section aria-labelledby="palette-section-5">
+			<h2 id="palette-section-5">Blue Tones</h2>
+			<ul class="palette" aria-labelledby="palette-section-5"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #82AAFF"></div></div>
+			<h3>Blue</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#82AAFF</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">130</span><span class="syntax-punctuation">, </span><span class="syntax-number">170</span><span class="syntax-punctuation">, </span><span class="syntax-number">255</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">221</span><span class="syntax-punctuation">, </span><span class="syntax-number">100%</span><span class="syntax-punctuation">, </span><span class="syntax-number">75%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #89DDFF"></div></div>
+			<h3>Cyan</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#89DDFF</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">137</span><span class="syntax-punctuation">, </span><span class="syntax-number">221</span><span class="syntax-punctuation">, </span><span class="syntax-number">255</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">197</span><span class="syntax-punctuation">, </span><span class="syntax-number">100%</span><span class="syntax-punctuation">, </span><span class="syntax-number">77%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #B2CCD6"></div></div>
+			<h3>Blue Gray</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#B2CCD6</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">178</span><span class="syntax-punctuation">, </span><span class="syntax-number">204</span><span class="syntax-punctuation">, </span><span class="syntax-number">214</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">197</span><span class="syntax-punctuation">, </span><span class="syntax-number">31%</span><span class="syntax-punctuation">, </span><span class="syntax-number">77%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+<section aria-labelledby="palette-section-6">
+			<h2 id="palette-section-6">Other Colors</h2>
+			<ul class="palette" aria-labelledby="palette-section-6"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #251c28"></div></div>
+			<h3>Dark Inactive</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#251C28</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">37</span><span class="syntax-punctuation">, </span><span class="syntax-number">28</span><span class="syntax-punctuation">, </span><span class="syntax-number">40</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">285</span><span class="syntax-punctuation">, </span><span class="syntax-number">18%</span><span class="syntax-punctuation">, </span><span class="syntax-number">13%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #382a3c"></div></div>
+			<h3>Dark Active</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#382A3C</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">56</span><span class="syntax-punctuation">, </span><span class="syntax-number">42</span><span class="syntax-punctuation">, </span><span class="syntax-number">60</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">287</span><span class="syntax-punctuation">, </span><span class="syntax-number">18%</span><span class="syntax-punctuation">, </span><span class="syntax-number">20%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #2c5256"></div></div>
+			<h3>Accent</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#2C5256</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgb</span><span class="syntax-punctuation">(</span><span class="syntax-number">44</span><span class="syntax-punctuation">, </span><span class="syntax-number">82</span><span class="syntax-punctuation">, </span><span class="syntax-number">86</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsl</span><span class="syntax-punctuation">(</span><span class="syntax-number">186</span><span class="syntax-punctuation">, </span><span class="syntax-number">32%</span><span class="syntax-punctuation">, </span><span class="syntax-number">25%</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+<section aria-labelledby="palette-section-7">
+			<h2 id="palette-section-7">Transparency Levels</h2>
+			<ul class="palette" aria-labelledby="palette-section-7"><li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #000000bf"></div></div>
+			<h3>Low</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#000000BF</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgba</span><span class="syntax-punctuation">(</span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0.75</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsla</span><span class="syntax-punctuation">(</span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0%</span><span class="syntax-punctuation">, </span><span class="syntax-number">0%</span><span class="syntax-punctuation">, </span><span class="syntax-number">0.75</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #00000080"></div></div>
+			<h3>Mid</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#00000080</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgba</span><span class="syntax-punctuation">(</span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0.5</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsla</span><span class="syntax-punctuation">(</span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0%</span><span class="syntax-punctuation">, </span><span class="syntax-number">0%</span><span class="syntax-punctuation">, </span><span class="syntax-number">0.5</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li>
+<li class="card">
+			<div class="checker" aria-hidden="true"><div class="swatch" style="background-color: #0000004f"></div></div>
+			<h3>High</h3>
+			<ul class="color-values" aria-label="Color values">
+				<li><span class="value-label">Hex:</span> <code class="syntax-string">#0000004F</code></li>
+				<li><span class="value-label">RGB:</span> <code><span class="syntax-method">rgba</span><span class="syntax-punctuation">(</span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0.31</span><span class="syntax-punctuation">)</span></code></li>
+				<li><span class="value-label">HSL:</span> <code><span class="syntax-method">hsla</span><span class="syntax-punctuation">(</span><span class="syntax-number">0</span><span class="syntax-punctuation">, </span><span class="syntax-number">0%</span><span class="syntax-punctuation">, </span><span class="syntax-number">0%</span><span class="syntax-punctuation">, </span><span class="syntax-number">0.31</span><span class="syntax-punctuation">)</span></code></li>
+			</ul>
+		</li></ul>
+		</section>
+		<footer>Generated from src/palette.cjs. Transparent colors appear over a checkerboard.<br>Run npm run build to refresh this page.</footer>
+	</main>
+</body>
+</html>

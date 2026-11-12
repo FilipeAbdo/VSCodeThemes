@@ -9,8 +9,9 @@
 			"name": "Extension",
 			"type": "extensionHost",
 			"request": "launch",
+			"preLaunchTask": "Watch Violet theme",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
+				"--extensionDevelopmentPath=${workspaceFolder}/.vscode/development"
 			]
 		}
 	]

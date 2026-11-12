@@ -1,0 +1,49 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Watch Violet theme",
+			"type": "npm",
+			"script": "watch",
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "violet-theme",
+				"pattern": {
+					"regexp": "^(.+):(\\d+):(\\d+): (error|warning): (.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^Building VS Code Violet Theme\\.\\.\\.$",
+					"endsPattern": "^Built VS Code Violet Theme\\.$"
+				}
+			}
+		},
+		{
+			"label": "npm: build",
+			"type": "npm",
+			"script": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Install Violet release locally",
+			"type": "npm",
+			"script": "install:local:release",
+			"problemMatcher": []
+		},
+		{
+			"label": "Install Violet theme locally",
+			"type": "npm",
+			"script": "install:local",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": []
+		}
+	]
+}

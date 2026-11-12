@@ -1,0 +1,48 @@
+name: Build Violet theme
+
+on:
+  push:
+    paths:
+      - 'Violet/src/**'
+      - 'Violet/scripts/**'
+      - 'Violet/package.json'
+      - 'Violet/package-lock.json'
+      - '.github/workflows/build-violet.yml'
+  pull_request:
+    paths:
+      - 'Violet/src/**'
+      - 'Violet/scripts/**'
+      - 'Violet/package.json'
+      - 'Violet/package-lock.json'
+      - '.github/workflows/build-violet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: Violet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Violet/package-lock.json
+      - run: npm ci
+      - run: npx playwright install chromium
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: violet-theme-build
+          if-no-files-found: error
+          path: |
+            Violet/themes/VS Code Violet Theme-color-theme.json
+            Violet/themes/decoration-styles.json
+            Violet/palette.html
+            Violet/images/palette.png
+            Violet/images/icon.png

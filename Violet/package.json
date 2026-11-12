@@ -1,15 +1,63 @@
 {
   "name": "violettheme",
   "displayName": "VioletTheme",
-  "description": "VS Code Color Theme Violet based",
-  "version": "0.0.1",
+  "icon": "images/icon.png",
+  "description": "VS Code Color Theme Violet [Dark]",
+  "version": "0.1.0",
+  "main": "./extension.cjs",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "engines": {
     "vscode": "^1.145.0"
   },
   "categories": [
     "Themes"
   ],
+  "scripts": {
+    "test": "node --test scripts/extension.test.cjs scripts/build-theme.test.cjs scripts/watch-theme.test.cjs scripts/palette.test.cjs",
+    "build": "node scripts/build-theme.cjs",
+    "watch": "node --watch --watch-path=src --watch-path=scripts --watch-path=package.json scripts/build-theme.cjs --development",
+    "install:local": "node scripts/install-local.cjs",
+    "install:local:release": "node scripts/install-local.cjs --release",
+    "vscode:prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0",
+    "tinycolor2": "^1.6.0"
+  },
   "contributes": {
+    "configuration": {
+      "title": "Violet Theme",
+      "properties": {
+        "violetTheme.decorateUnusedCode": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Apply the configured font style and Violet unused-code color or opacity to unnecessary-code diagnostics while VS Code Violet Theme is selected."
+        },
+        "violetTheme.unusedFontStyle": {
+          "type": "string",
+          "pattern": "^(?:normal|(?!(?:.*\\bitalic\\b.*\\boblique\\b|.*\\boblique\\b.*\\bitalic\\b))(?!.*\\b(?:solid|wavy|dotted|dashed|double)\\b.*\\b(?:solid|wavy|dotted|dashed|double)\\b)(?:(?=.*\\b(?:underline|strikethrough|line-through)\\b)|(?!.+#))(?:italic|oblique|bold|underline(?: (?:solid|wavy|dotted|dashed|double))?|strikethrough|line-through)(?: (?:italic|oblique|bold|underline(?: (?:solid|wavy|dotted|dashed|double))?|strikethrough|line-through))*(?: #[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)?|)$",
+          "default": "italic underline wavy #fdbe01",
+          "scope": "window",
+          "description": "Space-separated styles: italic, bold, underline, strikethrough (or line-through). Follow underline with solid, wavy, dotted, dashed, or double, e.g. italic underline wavy. Also supports oblique instead of italic. Use normal or an empty string for no added style. The underline modifier also affects a combined strikethrough.",
+          "patternErrorMessage": "Use supported space-separated font styles. Put one modifier immediately after underline. An optional trailing #RRGGBB or #RRGGBBAA color requires underline or strikethrough. Do not combine italic with oblique."
+        }
+      }
+    },
+    "colors": [
+      {
+        "id": "violetTheme.unusedForeground",
+        "description": "Foreground color for Violet Theme unnecessary-code decorations.",
+        "defaults": {
+          "dark": "editor.foreground",
+          "light": "editor.foreground",
+          "highContrast": "editor.foreground",
+          "highContrastLight": "editor.foreground"
+        }
+      }
+    ],
     "themes": [
       {
         "label": "VS Code Violet Theme",
@@ -19,7 +67,13 @@
     ],
     "configurationDefaults": {
       "workbench.experimental.modernUI": true,
-      "workbench.experimental.modernUIEditorTabStyle": "pill"
+      "workbench.experimental.modernUIEditorTabStyle": "pill",
+      "workbench.colorCustomizations": {
+        "[VS Code Violet Theme]": {
+          "tab.inactiveForeground": "#e3f8f8bf",
+          "tab.unfocusedInactiveForeground": "#4c8f95bf"
+        }
+      }
     }
   }
 }
