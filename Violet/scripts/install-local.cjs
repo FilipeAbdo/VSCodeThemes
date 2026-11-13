@@ -4,7 +4,7 @@ const path = require("node:path");
 
 const root = path.join(__dirname, "..");
 const manifest = require("../package.json");
-const destination = path.join(os.homedir(), ".vscode", "extensions", `${manifest.name}-local`);
+const destination = require("./dev-target.cjs").getDestination(manifest.name);
 const installedManifestPath = path.join(destination, "package.json");
 const release = process.argv.includes("--release");
 

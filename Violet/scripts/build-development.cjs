@@ -12,7 +12,13 @@ module.exports = function buildDevelopment(root, destination) {
 	manifest.contributes.keybindings = [
 		...(manifest.contributes.keybindings || []),
 		{ command, key: "ctrl+k ctrl+i", when: "workspaceFolderCount > 0" },
-		{ command: "violetTheme.installReleaseAndReload", key: "ctrl+k ctrl+shift+i", when: "workspaceFolderCount > 0" }
+		{ command: "violetTheme.installReleaseAndReload", key: "ctrl+k ctrl+shift+i", when: "workspaceFolderCount > 0" },
+		{
+			command: "workbench.action.tasks.runTask",
+			args: "Toggle Violet dev environment",
+			key: "ctrl+k ctrl+e",
+			when: "workspaceFolderCount > 0"
+		}
 	];
 	const files = [
 		manifest.main,

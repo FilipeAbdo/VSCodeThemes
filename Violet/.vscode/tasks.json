@@ -30,6 +30,12 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Toggle Violet dev environment",
+			"type": "npm",
+			"script": "toggle:env",
+			"problemMatcher": []
+		},
+		{
 			"label": "Install Violet release locally",
 			"type": "npm",
 			"script": "install:local:release",

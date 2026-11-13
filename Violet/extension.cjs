@@ -30,6 +30,9 @@ async function installAndReload(release = false) {
 }
 
 function activate(context) {
+	context.subscriptions.push(vscode.commands.registerCommand("violetTheme.previewPalette", () =>
+		vscode.commands.executeCommand("vscode.open", vscode.Uri.joinPath(context.extensionUri, "images", "palette.png"))
+	));
 	let installing = false;
 	for (const [command, release] of [
 		["violetTheme.installAndReload", false],

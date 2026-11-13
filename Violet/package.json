@@ -19,6 +19,7 @@
     "test": "node --test scripts/extension.test.cjs scripts/build-theme.test.cjs scripts/watch-theme.test.cjs scripts/palette.test.cjs",
     "build": "node scripts/build-theme.cjs",
     "watch": "node --watch --watch-path=src --watch-path=scripts --watch-path=images/icon-source.svg --watch-path=package.json scripts/build-theme.cjs --development",
+    "toggle:env": "node scripts/dev-target.cjs",
     "install:local": "node scripts/install-local.cjs",
     "install:local:release": "node scripts/install-local.cjs --release",
     "vscode:prepublish": "npm run build"
@@ -28,6 +29,12 @@
     "tinycolor2": "^1.6.0"
   },
   "contributes": {
+    "commands": [
+      {
+        "command": "violetTheme.previewPalette",
+        "title": "Violet Theme: Preview Color Palette"
+      }
+    ],
     "configuration": {
       "title": "Violet Theme",
       "properties": {

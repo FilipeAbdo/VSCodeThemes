@@ -111,7 +111,7 @@ theme JSON and [images/palette.png](images/palette.png). Playwright opens the HT
 locally in headless Chromium and captures a full-page PNG for the README.
 No external rendering services are used. Open the HTML in your browser for
 responsive color cards, selectable HEX/RGB/HSL values, and checkerboard transparency
-previews. GitHub shows the HTML source; the README embeds the PNG instead.
+previews. The README references the PNG hosted on GitHub.
 Page surfaces and text use `common` colors; syntax examples and color functions
 use `tokens` colors for methods, punctuation, numbers, strings, and comments.
 The palette does not specify font families, so the page uses system UI fonts
@@ -122,10 +122,13 @@ does the same when source files are saved, including `src/palette.cjs`.
 
 ### README image
 
-The Extensions page blocks local image URLs. The build embeds the palette PNG
-as a data URI directly in the README's palette image, refreshing it after each
-render. Keep the image's alt text starting with "Violet Theme color palette"
-so the build can locate it. No external image host is needed.
+The Extensions Details page sanitizes local and data-URI image sources, so the
+README uses the PNG hosted on GitHub's `main` branch. Commit and push the
+generated PNG to update the displayed image. Local builds do not change the
+hosted image until it is pushed.
+Run **Violet Theme: Preview Color Palette** from the Command Palette to open
+the installed `images/palette.png` in VS Code's image viewer. This command is
+available in development and release installs and requires no network connection.
 
 ### Extension icon
 
@@ -192,9 +195,8 @@ After installing this command for the first time, reload VS Code once to load
 the new runtime and keybinding. `Ctrl+Shift+B` still installs without reloading.
 
 Run `npm run install:local` to build the theme and copy its runtime files into
-`<user home>\.vscode\extensions\violettheme-local`.
-On your current Windows account, this is
-`C:\Users\fabdo\.vscode\extensions\violettheme-local`.
+the destination selected by [scripts/dev-target.cjs](scripts/dev-target.cjs).
+The default is `<user home>\.vscode\extensions\violettheme-local`.
 No packaging tools are required; run `npm ci` and
 `npx playwright install chromium` before the first build.
 
@@ -202,6 +204,17 @@ Run **Developer: Reload Window** (or restart VS Code), then choose
 **VS Code Violet Theme** using **Preferences: Color Theme**.
 Run `npm run install:local` again after source changes to update the local copy.
 This targets desktop VS Code Stable, not Insiders or remote extension hosts.
+If **Toggle Violet dev environment** is set to **VS Code built-in extensions**,
+the installer follows the active app folder in VS Code's `bin\code.cmd` launcher,
+including versioned app folders.
+
+Use **Toggle Violet dev environment**, `npm run toggle:env`, or **Ctrl+K, Ctrl+E**
+with the development extension loaded to switch the installation destination.
+Both development and release local installs use this shared selection.
+The toggle does not move the workspace or change build inputs: build, palette,
+and icon scripts resolve project files relative to their own script directory,
+not the terminal's current directory or the selected VS Code installation.
+F5 staging stays in the workspace's `.vscode/development` directory.
 
 Default local installs and F5 builds include the install/reload command and shortcut.
 For a local release install, select **Tasks: Run Task > Install Violet release

@@ -58,6 +58,7 @@ test("local installer switches between development and release in the same direc
 				console: { log() {}, error() {} },
 				require(name) {
 					if (name === "node:os") return { homedir: () => home };
+					if (name === "./dev-target.cjs") return { getDestination: () => destination };
 					if (name === "./build-theme.cjs") return Promise.resolve();
 					return require(name);
 				}
@@ -65,7 +66,7 @@ test("local installer switches between development and release in the same direc
 			vm.runInNewContext(fs.readFileSync(path.join(__dirname, "install-local.cjs"), "utf8"), sandbox);
 			await sandbox.module.exports;
 			const installed = JSON.parse(fs.readFileSync(path.join(destination, "package.json"), "utf8"));
-			assert.equal(Boolean(installed.contributes.commands), !release);
+			assert.equal(installed.contributes.commands.some(({ command }) => command === "violetTheme.installAndReload"), !release);
 			assert.equal(Boolean(installed.contributes.keybindings), !release);
 			for (const file of [manifest.main, manifest.icon, "themes/decoration-styles.json", ...manifest.contributes.themes.map(theme => theme.path)]) {
 				assert.deepStrictEqual(fs.readFileSync(path.join(destination, file)), fs.readFileSync(path.join(root, file)));
@@ -73,6 +74,24 @@ test("local installer switches between development and release in the same direc
 		}
 	} finally {
 		fs.rmSync(home, { recursive: true });
+	}
+});
+
+test("built-in install target follows the active versioned VS Code folder", () => {
+	const root = fs.mkdtempSync(path.join(require("node:os").tmpdir(), "violet-vscode-"));
+	const appRoot = path.join(root, "69047191fc", "resources", "app");
+	const launcherDirectory = path.join(root, "bin");
+	fs.mkdirSync(path.join(appRoot, "extensions"), { recursive: true });
+	fs.mkdirSync(launcherDirectory, { recursive: true });
+	fs.writeFileSync(
+		path.join(launcherDirectory, "code.cmd"),
+		'"%~dp0..\\Code.exe" "%~dp0..\\69047191fc\\resources\\app\\out\\cli.js" %*\n'
+	);
+	try {
+		const { getBuiltinExtensionsDirectory } = require("./dev-target.cjs");
+		assert.equal(getBuiltinExtensionsDirectory(root), path.join(appRoot, "extensions"));
+	} finally {
+		fs.rmSync(root, { recursive: true });
 	}
 });
 
@@ -84,9 +103,9 @@ test("development build adds shortcuts without changing the release manifest", (
 		require("./build-development.cjs")(root, destination);
 		const release = JSON.parse(original);
 		const development = JSON.parse(fs.readFileSync(path.join(destination, "package.json"), "utf8"));
-		assert.equal(release.contributes.commands, undefined);
+		assert.equal(release.contributes.commands.some(({ command }) => command === "violetTheme.installAndReload"), false);
 		assert.equal(release.contributes.keybindings, undefined);
-		assert.deepStrictEqual(development.contributes.commands, [{
+		assert.deepStrictEqual(development.contributes.commands, [...release.contributes.commands, {
 			command: "violetTheme.installAndReload",
 			title: "Violet Theme: Install Locally and Reload Window"
 		}, {
@@ -100,6 +119,11 @@ test("development build adds shortcuts without changing the release manifest", (
 		}, {
 			command: "violetTheme.installReleaseAndReload",
 			key: "ctrl+k ctrl+shift+i",
+			when: "workspaceFolderCount > 0"
+		}, {
+			command: "workbench.action.tasks.runTask",
+			args: "Toggle Violet dev environment",
+			key: "ctrl+k ctrl+e",
 			when: "workspaceFolderCount > 0"
 		}]);
 		for (const file of [release.main, release.icon, "themes/decoration-styles.json", ...release.contributes.themes.map(theme => theme.path)]) {
@@ -119,12 +143,12 @@ test("extension icon is a 256 by 256 PNG", () => {
 	assert.equal(icon.readUInt32BE(20), 256);
 });
 
-test("README embeds the exact palette PNG without a local image URL", () => {
+test("README links to the hosted palette and local preview", () => {
 	const root = path.join(__dirname, "..");
 	const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
-	const image = readme.match(/!\[Violet Theme color palette[^\]]*\]\(data:image\/png;base64,([A-Za-z0-9+/=]+)\)/);
-	assert.ok(image, "README must contain an embedded palette image");
-	assert.deepStrictEqual(Buffer.from(image[1], "base64"), fs.readFileSync(path.join(root, "images", "palette.png")));
+	assert.match(readme, /!\[Violet Theme color palette[^\]]*\]\(https:\/\/raw\.githubusercontent\.com\/FilipeAbdo\/VSCodeThemes\/main\/Violet\/images\/palette\.png\)/);
+	assert.ok(readme.includes("Violet Theme: Preview Color Palette"));
+	assert.equal(readme.includes("data:image/png;base64,"), false);
 });
 
 test("generated editor icon resolves the current theme colors", () => {
@@ -145,7 +169,7 @@ test("generated editor icon resolves the current theme colors", () => {
 	);
 	assert.deepStrictEqual(lines, [
 		"// A little more violet", "", 'const var = "Violet"', "",
-		"class VioletTheme{", "    function makeitViolet(a, b){",
+		"class VioletTheme{", "    function makeItViolet(a, b){",
 		"        var = 10.2;", "    }", "};"
 	]);
 	assert.match(svg, /id="backdrop-dimmer"[^>]*opacity="\.35"/);
@@ -191,7 +215,7 @@ test("icon renderer picks up theme changes on the next build", async () => {
 	assert.ok(svg.includes('data-scope="storage.type" fill="#abcdef" font-style="normal" font-weight="bold"'));
 });
 
-for (const development of [false, true]) test(`unused decorations and command registration in ${development ? "development" : "release"}`, () => {
+for (const development of [false, true]) test(`unused decorations and command registration in ${development ? "development" : "release"}`, async () => {
 	const listeners = {};
 	const settings = {
 		"workbench.colorTheme": "VS Code Violet Theme",
@@ -223,9 +247,13 @@ for (const development of [false, true]) test(`unused decorations and command re
 	let reloadStyles;
 	let unwatched = false;
 	const registeredCommands = [];
+	const commandHandlers = new Map();
+	const opened = [];
 	const vscode = {
-		commands: { registerCommand: command => {
+		Uri: { joinPath: (base, ...parts) => [base, ...parts].join("/") },
+		commands: { executeCommand: async (...args) => { opened.push(args); }, registerCommand: (command, handler) => {
 			registeredCommands.push(command);
+			commandHandlers.set(command, handler);
 			return { dispose() {} };
 		} },
 		ThemeColor: class {
@@ -279,9 +307,11 @@ for (const development of [false, true]) test(`unused decorations and command re
 		}
 	};
 	vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "extension.cjs"), "utf8"), sandbox);
-	sandbox.module.exports.activate({ subscriptions });
+	sandbox.module.exports.activate({ subscriptions, extensionUri: "file:///installed-violet" });
 	assert.deepStrictEqual(registeredCommands, development
-		? ["violetTheme.installAndReload", "violetTheme.installReleaseAndReload"] : []);
+		? ["violetTheme.previewPalette", "violetTheme.installAndReload", "violetTheme.installReleaseAndReload"] : ["violetTheme.previewPalette"]);
+	await commandHandlers.get("violetTheme.previewPalette")();
+	assert.deepStrictEqual(opened, [["vscode.open", "file:///installed-violet/images/palette.png"]]);
 	assert.equal(options.fontStyle, "italic");
 	assert.equal(options.color.id, "violetTheme.unusedForeground");
 	assert.deepStrictEqual(editor.ranges, [unusedRange]);

@@ -140,17 +140,6 @@ module.exports = async function renderPalette() {
 		await page.goto(pathToFileURL(htmlPath).href);
 		await page.evaluate(() => document.fonts.ready);
 		await page.screenshot({ path: imagePath, fullPage: true, animations: "disabled" });
-		const readmePath = path.join(__dirname, "..", "README.md");
-		const readme = fs.readFileSync(readmePath, "utf8");
-		const embeddedImage = `data:image/png;base64,${fs.readFileSync(imagePath).toString("base64")}`;
-		const updatedReadme = readme.replace(
-			/(!\[Violet Theme color palette[^\]]*\]\()(?:images\/palette\.png|data:image\/png;base64,[A-Za-z0-9+/=]+)(\))/,
-			(_, prefix, suffix) => `${prefix}${embeddedImage}${suffix}`
-		);
-		if (updatedReadme === readme && !readme.includes(embeddedImage)) {
-			throw new Error("README is missing the Violet Theme color palette image.");
-		}
-		if (updatedReadme !== readme) fs.writeFileSync(readmePath, updatedReadme);
 		await require("./render-icon.cjs")(page);
 	} finally {
 		await browser.close();
