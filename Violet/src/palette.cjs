@@ -63,6 +63,7 @@ const commonColors = {
 		violet3rdTone: rgb(158,74,158),
 		violet4thTone: rgb(190,117,190),
 		violet5thTone: rgb(222,172,222),
+		violet6thTone: rgb(235, 226, 255)
 	},
 
 	//Contrast colors
@@ -90,11 +91,13 @@ const commonColors = {
 	//Green Tones
 	greenTones: {
 		muted: rgb(57, 136, 75),
+		strong: "#23b521",
 		green: "#C3E88D"
 	},
 	
 	//Blue Tones
 	blueTones: {
+		strong: "#4681ff",
 		blue: "#82AAFF",
 		cyan: "#89DDFF",
 		blueGray: "#B2CCD6"
@@ -126,7 +129,8 @@ module.exports = {
 		editorForeground: commonColors.contrastColors.lightForeground,
 		unusedCodeForeground: commonColors.transparencyLevels.low,
 		sidebarBackground: commonColors.violet.greyishViolet,
-		selectionBackground: commonColors.violet.violet,
+		selectedTabBackground: commonColors.violet.violet,
+		selectionBackground: withAlpha(commonColors.violet.violet6thTone, 0.4),
 		accent: commonColors.otherColors.accent,
 		white: commonColors.contrastColors.lightForeground,
 		badgeBackground: commonColors.contrastColors.mediumForeground,
@@ -160,9 +164,10 @@ module.exports = {
 		functionInlineParameterNameDefinition: commonColors.blueTones.blue,
 		blockLevelVariables: commonColors.redTones.coral,
 		otherVariableStringLink: commonColors.redTones.coral,
-		numberConstantFunctionArgumentTagAttributeEmbedded: commonColors.redTones.orange,
+		numberConstantFunctionArgumentTagAttributeEmbedded: commonColors.redTones.coral,
 		stringSymbolsInheritedClassMarkupHeading: commonColors.greenTones.green,
 		classSupport: commonColors.yellowTones.yellow,
+		classMemberNotFunctions: commonColors.redTones.orange,
 		entityTypes: commonColors.blueTones.blueGray,
 		cssClassAndSupport: commonColors.blueTones.blueGray,
 		subMethods: commonColors.redTones.red,
@@ -212,5 +217,7 @@ module.exports = {
 		markdownFencedLanguage: commonColors.greenTones.muted,
 		markdownSeparator: commonColors.greenTones.muted,
 		markupTable: commonColors.contrastColors.lightForeground
+
+		//Python
 	}
 };

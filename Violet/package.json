@@ -4,7 +4,7 @@
   "publisher": "FilipeAbdo",
   "icon": "images/icon.png",
   "description": "VS Code Color Theme Violet [Dark]",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "./extension.cjs",
   "activationEvents": [
     "onStartupFinished"
@@ -16,9 +16,11 @@
     "Themes"
   ],
   "scripts": {
-    "test": "node --test scripts/extension.test.cjs scripts/build-theme.test.cjs scripts/watch-theme.test.cjs scripts/palette.test.cjs",
+    "test": "node --test scripts/extension.test.cjs scripts/build-theme.test.cjs scripts/watch-theme.test.cjs scripts/palette.test.cjs scripts/release.test.cjs",
+    "release": "node scripts/release.cjs",
     "build": "node scripts/build-theme.cjs",
     "watch": "node --watch --watch-path=src --watch-path=scripts --watch-path=images/icon-source.svg --watch-path=package.json scripts/build-theme.cjs --development",
+    "watch:decorations:agent": "node scripts/watch-decorations-agent.cjs",
     "toggle:env": "node scripts/dev-target.cjs",
     "install:local": "node scripts/install-local.cjs",
     "install:local:release": "node scripts/install-local.cjs --release",
@@ -38,6 +40,12 @@
     "configuration": {
       "title": "Violet Theme",
       "properties": {
+        "violetTheme.decorateAttributeAccessIssues": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Color the text ranges of Pylance reportAttributeAccessIssue diagnostics while VS Code Violet Theme is selected."
+        },
         "violetTheme.decorateUnusedCode": {
           "type": "boolean",
           "default": true,
@@ -55,6 +63,16 @@
       }
     },
     "colors": [
+      {
+        "id": "violetTheme.attributeAccessForeground",
+        "description": "Text color for Pylance attribute-access diagnostic ranges.",
+        "defaults": {
+          "dark": "editorError.foreground",
+          "light": "editorError.foreground",
+          "highContrast": "editorError.foreground",
+          "highContrastLight": "editorError.foreground"
+        }
+      },
       {
         "id": "violetTheme.unusedForeground",
         "description": "Foreground color for Violet Theme unnecessary-code decorations.",
@@ -76,6 +94,7 @@
     "configurationDefaults": {
       "workbench.experimental.modernUI": true,
       "workbench.experimental.modernUIEditorTabStyle": "pill",
+      "python.languageServer": "Pylance",
       "workbench.colorCustomizations": {
         "[VS Code Violet Theme]": {
           "tab.inactiveForeground": "#e3f8f8bf",

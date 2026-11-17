@@ -1,8 +1,15 @@
 {
 	"name": "VS Code Violet Theme",
+	"semanticHighlighting": true,
+	"decorationStyles": {
+		"unusedFontStyle": "italic underline wavy #fdbe01",
+		"unusedForeground": "#000000bf",
+		"attributeAccessForeground": "#e3f8f8"
+	},
 	"colors": {
 		"editor.background": "#180025",
 		"editor.foreground": "#e3f8f8",
+		"editor.selectionBackground": "#ebe2ff66",
 		"violetTheme.unusedForeground": "#000000bf",
 		"surface.background": "#180025",
 		"sideBar.background": "#3d293d",
@@ -47,6 +54,49 @@
 		"debugToolBar.background": "#214549",
 		"debugToolBar.border": "#711971"
 	},
+	"semanticTokenColors": {
+		"class": {
+			"foreground": "#fdbe01"
+		},
+		"class.builtin": {
+			"foreground": "#23b521"
+		},
+		"class.declaration": {
+			"foreground": "#FFCB6B",
+			"bold": true
+		},
+		"selfParameter": {
+			"foreground": "#4681ff",
+			"italic": true,
+			"bold": true
+		},
+		"enumMember": {
+			"foreground": "#23b521",
+			"fontStyle": "bold"
+		},
+		"variable": {
+			"modifiers": "classMember",
+			"foreground": "#F78C6C"
+		},
+		"parameter": {
+			"foreground": "#f07178"
+		},
+		"magicFunction": {
+			"foreground": "#FF5370",
+			"fontStyle": "italic bold"
+		},
+		"module": {
+			"foreground": "#82AAFF",
+			"fontStyle": "italic bold"
+		},
+		"builtinConstant": {
+			"foreground": "#23b521",
+			"fontStyle": "italic bold"
+		},
+		"*.invalid": {
+			"foreground": "#FF00FF"
+		}
+	},
 	"tokenColors": [
 		{
 			"name": "Comment",
@@ -63,7 +113,7 @@
 			"name": "Variables",
 			"scope": [
 				"variable",
-				"string constant.other.placeholder"
+				"variable.parameter"
 			],
 			"settings": {
 				"foreground": "#4c8f95"
@@ -101,9 +151,40 @@
 			}
 		},
 		{
+			"name": "Keyword",
+			"scope": [
+				"keyword.control"
+			],
+			"settings": {
+				"foreground": "#be75be",
+				"fontStyle": "bold"
+			}
+		},
+		{
+			"name": "Keyword Flow",
+			"scope": [
+				"keyword.control.flow"
+			],
+			"settings": {
+				"foreground": "#be75be",
+				"fontStyle": "bold"
+			}
+		},
+		{
+			"name": "Punctuation",
+			"scope": [
+				"punctuation.definition.arguments",
+				"meta.item-access",
+				"meta.member.access"
+			],
+			"settings": {
+				"foreground": "#23b521"
+			}
+		},
+		{
 			"name": "Operator, Misc",
 			"scope": [
-				"keyword.control",
+				"keyword.operator",
 				"constant.other.color",
 				"punctuation",
 				"meta.tag",
@@ -117,7 +198,8 @@
 				"keyword.other.substitution"
 			],
 			"settings": {
-				"foreground": "#89DDFF"
+				"foreground": "#89DDFF",
+				"fontStyle": "normal"
 			}
 		},
 		{
@@ -148,7 +230,7 @@
 		{
 			"name": "Function Name Parameter Name Inline Definition",
 			"scope": [
-				"meta.object-literal.key"
+				"meta.function.parameter"
 			],
 			"settings": {
 				"foreground": "#82AAFF"
@@ -181,12 +263,13 @@
 				"support.constant",
 				"constant.character",
 				"constant.escape",
-				"variable.parameter",
 				"keyword.other.unit",
-				"keyword.other"
+				"keyword.other",
+				"constant.other.caps"
 			],
 			"settings": {
-				"foreground": "#F78C6C"
+				"foreground": "#f07178",
+				"fontStyle": "normal"
 			}
 		},
 		{
@@ -214,7 +297,8 @@
 				"meta.use.php",
 				"support.other.namespace.php",
 				"markup.changed.git_gutter",
-				"support.type.sys-types"
+				"support.type.sys-types",
+				"entity.name.type.class"
 			],
 			"settings": {
 				"foreground": "#FFCB6B"
@@ -255,16 +339,6 @@
 			}
 		},
 		{
-			"name": "Language methods",
-			"scope": [
-				"variable.language"
-			],
-			"settings": {
-				"fontStyle": "italic",
-				"foreground": "#FF5370"
-			}
-		},
-		{
 			"name": "entity.name.method.js",
 			"scope": [
 				"entity.name.method.js"
@@ -291,6 +365,15 @@
 			],
 			"settings": {
 				"foreground": "#9e4a9e"
+			}
+		},
+		{
+			"name": "Meta Attribute",
+			"scope": [
+				"meta.attribute"
+			],
+			"settings": {
+				"foreground": "#F78C6C"
 			}
 		},
 		{

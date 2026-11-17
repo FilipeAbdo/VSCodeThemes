@@ -56,10 +56,41 @@ test("build updates palette-derived defaults without overwriting other settings"
 	assert.ok(files.has(path.join(__dirname, "..", "package.json")));
 	const generated = JSON.parse(files.get(path.join(__dirname, "..", "themes", "VS Code Violet Theme-color-theme.json")));
 	assert.equal(Object.hasOwn(generated, "configurationColorDefaults"), false);
-	assert.equal(Object.hasOwn(generated, "decorationStyles"), false);
+	assert.deepStrictEqual(generated.decorationStyles, require("../src/theme.cjs").decorationStyles);
+	assert.equal(generated.semanticHighlighting, true);
+	assert.deepStrictEqual(generated.semanticTokenColors, {
+		"class": { "foreground": "#FFCB6B" },
+		"class.declaration": { "foreground": "#FFCB6B", "bold": true },
+		"selfParameter": { "foreground": "#FF5370", "italic": true, "bold": true },
+		"property": { "foreground": "#deacde" },
+		"magicFunction": { "foreground": "#FF5370", "fontStyle": "italic bold" },
+		"module": { "foreground": "#82AAFF", "fontStyle": "italic bold" }
+	});
+});
+
+test("build keeps the attribute-access color in decoration styles, not theme colors", async () => {
+	const { files } = await buildWithOverrides({
+		"tab.inactiveForeground": "#123abc",
+		"tab.unfocusedInactiveForeground": "#456def"
+	});
+	const generated = JSON.parse(files.get(path.join(__dirname, "..", "themes", "VS Code Violet Theme-color-theme.json")));
+	const styles = generated.decorationStyles;
+	assert.equal(Object.hasOwn(generated.colors, "violetTheme.attributeAccessForeground"), false);
+	assert.equal(styles.attributeAccessForeground, require("../src/theme.cjs").decorationStyles.attributeAccessForeground);
+	assert.equal(styles.unusedForeground, require("../src/theme.cjs").decorationStyles.unusedForeground);
+	assert.equal(files.has(path.join(__dirname, "..", "themes", "decoration-styles.json")), false);
 });
 
 test("build rejects invalid palette-derived configuration colors", async () => {
 	await assert.rejects(buildWithOverrides({ "tab.inactiveForeground": undefined }), /Invalid configuration color tab.inactiveForeground/);
 	await assert.rejects(buildWithOverrides({ "tab.inactiveForeground": "not-a-color" }), /Invalid configuration color tab.inactiveForeground/);
+});
+
+test("build includes the theme error underline color", async () => {
+	const { files } = await buildWithOverrides({
+		"tab.inactiveForeground": "#123abc",
+		"tab.unfocusedInactiveForeground": "#456def"
+	});
+	const generated = JSON.parse(files.get(path.join(__dirname, "..", "themes", "VS Code Violet Theme-color-theme.json")));
+	assert.equal(generated.colors["editorError.foreground"], "#FF5370");
 });

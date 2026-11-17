@@ -45,6 +45,19 @@ If needed, set:
 Connected tabs can use the editor surface color instead of the theme's custom
 active-tab background.
 
+## Python attribute-access errors
+
+While Violet is selected, text ranges reported by Pylance with
+`reportAttributeAccessIssue` use `attributeAccessForeground` from the generated
+theme JSON's `decorationStyles` section (authored in `src/theme.cjs` under
+`decorationStyles`). This includes
+missing attributes and incompatible attribute assignments; the diagnostic range
+may highlight an assigned value rather than the attribute name.
+Diagnostic underlines are unchanged.
+Disable this with `"violetTheme.decorateAttributeAccessIssues": false`.
+Customize the text color using `violetTheme.attributeAccessForeground` inside
+`workbench.colorCustomizations`.
+
 ## Unused-code styling
 
 While this theme is selected, code reported as unnecessary by your language

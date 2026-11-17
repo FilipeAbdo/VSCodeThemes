@@ -26,7 +26,6 @@ module.exports = function buildDevelopment(root, destination) {
 		"images/icon.svg",
 		"README.md",
 		"images/palette.png",
-		"themes/decoration-styles.json",
 		...manifest.contributes.themes.map(theme => theme.path)
 	];
 	for (const file of files) {

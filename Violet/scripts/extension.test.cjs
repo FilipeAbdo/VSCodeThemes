@@ -68,7 +68,7 @@ test("local installer switches between development and release in the same direc
 			const installed = JSON.parse(fs.readFileSync(path.join(destination, "package.json"), "utf8"));
 			assert.equal(installed.contributes.commands.some(({ command }) => command === "violetTheme.installAndReload"), !release);
 			assert.equal(Boolean(installed.contributes.keybindings), !release);
-			for (const file of [manifest.main, manifest.icon, "themes/decoration-styles.json", ...manifest.contributes.themes.map(theme => theme.path)]) {
+			for (const file of [manifest.main, manifest.icon, ...manifest.contributes.themes.map(theme => theme.path)]) {
 				assert.deepStrictEqual(fs.readFileSync(path.join(destination, file)), fs.readFileSync(path.join(root, file)));
 			}
 		}
@@ -126,7 +126,7 @@ test("development build adds shortcuts without changing the release manifest", (
 			key: "ctrl+k ctrl+e",
 			when: "workspaceFolderCount > 0"
 		}]);
-		for (const file of [release.main, release.icon, "themes/decoration-styles.json", ...release.contributes.themes.map(theme => theme.path)]) {
+		for (const file of [release.main, release.icon, ...release.contributes.themes.map(theme => theme.path)]) {
 			assert.deepStrictEqual(fs.readFileSync(path.join(destination, file)), fs.readFileSync(path.join(root, file)));
 		}
 		assert.equal(fs.readFileSync(path.join(root, "package.json"), "utf8"), original);
@@ -237,13 +237,20 @@ for (const development of [false, true]) test(`unused decorations and command re
 	const editor = {
 		document: { uri: "file:example.js" },
 		setDecorations(type, ranges) {
+			if (type === attributeDecoration) {
+				this.attributeRanges = Array.from(ranges);
+				return;
+			}
 			assert.equal(type, decoration);
 			this.ranges = Array.from(ranges);
 		}
 	};
 	const decoration = { dispose: () => disposed++ };
+	let attributeDisposed = false;
+	const attributeDecoration = { dispose: () => { attributeDisposed = true; } };
 	let options;
-	let generatedStyles = { unusedFontStyle: "italic", unusedForeground: "#65737E" };
+	let generatedStyles = { unusedFontStyle: "italic", unusedForeground: "#65737E", attributeAccessForeground: "#e3f8f8" };
+	let attributeOptions;
 	let reloadStyles;
 	let unwatched = false;
 	const registeredCommands = [];
@@ -263,6 +270,10 @@ for (const development of [false, true]) test(`unused decorations and command re
 		window: {
 			visibleTextEditors: [editor],
 			createTextEditorDecorationType(value) {
+				if (!Object.hasOwn(value, "fontStyle")) {
+					attributeOptions = value;
+					return attributeDecoration;
+				}
 				options = value;
 				return decoration;
 			},
@@ -287,8 +298,14 @@ for (const development of [false, true]) test(`unused decorations and command re
 		require: name => {
 			if (name === "node:path") return path;
 			if (name === "node:fs") return {
-				readFileSync: () => JSON.stringify(generatedStyles),
-				watchFile: (file, options, callback) => { reloadStyles = callback; },
+				readFileSync: file => {
+					assert.equal(file, path.join(__dirname, "..", "themes", "VS Code Violet Theme-color-theme.json"));
+					return JSON.stringify({ decorationStyles: generatedStyles });
+				},
+				watchFile: (file, options, callback) => {
+					assert.equal(file, path.join(__dirname, "..", "themes", "VS Code Violet Theme-color-theme.json"));
+					reloadStyles = callback;
+				},
 				unwatchFile: () => { unwatched = true; }
 			};
 			if (name === "./package.json") {
@@ -393,14 +410,14 @@ for (const development of [false, true]) test(`unused decorations and command re
 		assert.equal(options.opacity, "1");
 	}
 	delete settings["violetTheme.unusedFontStyle"];
-	generatedStyles = { unusedFontStyle: "italic underline wavy #FF00FF", unusedForeground: "#00000080" };
+	generatedStyles = { unusedFontStyle: "italic underline wavy #FF00FF", unusedForeground: "#00000080", attributeAccessForeground: "#e3f8f8" };
 	delete settings["workbench.colorCustomizations"];
 	reloadStyles();
 	assert.equal(options.fontStyle, "italic");
 	assert.equal(options.textDecoration, "underline wavy #FF00FF");
 	assert.equal(options.opacity, String(128 / 255));
 	settings["violetTheme.unusedFontStyle"] = "bold";
-	generatedStyles = { unusedFontStyle: "underline", unusedForeground: "#000000ff" };
+	generatedStyles = { unusedFontStyle: "underline", unusedForeground: "#000000ff", attributeAccessForeground: "#e3f8f8" };
 	reloadStyles();
 	assert.equal(options.fontWeight, "bold");
 	assert.equal(options.textDecoration, "none");
@@ -411,7 +428,54 @@ for (const development of [false, true]) test(`unused decorations and command re
 		settings["violetTheme.unusedFontStyle"] = invalid;
 		assert.throws(() => listeners.configuration({ affectsConfiguration: key => key === "violetTheme.unusedFontStyle" }), /Invalid violetTheme.unusedFontStyle/);
 	}
+	delete settings["violetTheme.unusedFontStyle"];
+	editor.document.languageId = "python";
+	const attributeRange = { start: 32, end: 36 };
+	const attributeDiagnostic = {
+		range: attributeRange,
+		source: "Pylance",
+		code: { value: "reportAttributeAccessIssue", target: "https://example.com/diagnostic" }
+	};
+	diagnostics.splice(0, diagnostics.length,
+		attributeDiagnostic,
+		{ ...attributeDiagnostic, source: "Other" },
+		{ ...attributeDiagnostic, code: "reportUnknownMemberType" }
+	);
+	listeners.diagnostics();
+	assert.deepStrictEqual(editor.attributeRanges, [attributeRange]);
+	assert.equal(attributeOptions.color, "#e3f8f8");
+	generatedStyles.attributeAccessForeground = "#123456";
+	reloadStyles();
+	assert.equal(attributeOptions.color, "#123456");
+	settings["workbench.colorCustomizations"] = { "violetTheme.attributeAccessForeground": "#abcdef" };
+	listeners.configuration({ affectsConfiguration: key => key === "workbench.colorCustomizations" });
+	assert.equal(attributeOptions.color, "#abcdef");
+	settings["workbench.colorCustomizations"]["[VS Code Violet Theme]"] = {
+		"violetTheme.attributeAccessForeground": "#fedcba"
+	};
+	listeners.configuration({ affectsConfiguration: key => key === "workbench.colorCustomizations" });
+	assert.equal(attributeOptions.color, "#fedcba");
+	assert.deepStrictEqual(secondEditor.attributeRanges, []);
+	attributeDiagnostic.code = "reportAttributeAccessIssue";
+	listeners.diagnostics();
+	assert.deepStrictEqual(editor.attributeRanges, [attributeRange]);
+	settings["violetTheme.decorateAttributeAccessIssues"] = false;
+	listeners.configuration({ affectsConfiguration: key => key === "violetTheme.decorateAttributeAccessIssues" });
+	assert.deepStrictEqual(editor.attributeRanges, []);
+	settings["violetTheme.decorateAttributeAccessIssues"] = true;
+	listeners.diagnostics();
+	assert.deepStrictEqual(editor.attributeRanges, [attributeRange]);
+	settings["workbench.colorTheme"] = "Default Dark Modern";
+	listeners.theme();
+	assert.deepStrictEqual(editor.attributeRanges, []);
+	settings["workbench.colorTheme"] = "VS Code Violet Theme";
+	listeners.theme();
+	assert.deepStrictEqual(editor.attributeRanges, [attributeRange]);
+	diagnostics.length = 0;
+	listeners.diagnostics();
+	assert.deepStrictEqual(editor.attributeRanges, []);
 	for (const subscription of subscriptions) subscription.dispose();
-	assert.equal(disposed, 28);
+	assert.equal(attributeDisposed, true);
+	assert.equal(disposed, 29);
 	assert.equal(unwatched, true);
 });

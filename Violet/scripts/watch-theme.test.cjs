@@ -4,6 +4,93 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
+const { watchDecorationStyles } = require("./watch-decorations-agent.cjs");
+
+test("decoration agent watcher debounces saves and ignores its own rebuilds", { timeout: 10000 }, async t => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "violet-decoration-watch-"));
+	const files = ["release.json", "development.json"].map(file => path.join(root, file));
+	for (const file of files) fs.writeFileSync(file, '{"decorationStyles":{"color":"#123456"}}');
+	let runs = 0;
+	let releaseRun;
+	const savedFiles = [];
+	const errors = [];
+	const watcher = watchDecorationStyles({
+		files, interval: 20, debounce: 80,
+		async run(changedFiles) {
+			runs++;
+			savedFiles.push(changedFiles);
+			await new Promise(resolve => { releaseRun = resolve; });
+			for (const file of files) fs.writeFileSync(file, '{"decorationStyles":{"color":"#abcdef"}}');
+		},
+		onError: error => errors.push(error)
+	});
+	t.after(() => {
+		watcher.dispose();
+		fs.rmSync(root, { recursive: true });
+	});
+	async function waitFor(predicate) {
+		const deadline = Date.now() + 3000;
+		while (!predicate()) {
+			assert.ok(Date.now() < deadline, "Watcher did not launch");
+			await new Promise(resolve => setTimeout(resolve, 20));
+		}
+	}
+	fs.writeFileSync(files[0], '{\n "decorationStyles": { "color": "#123456" }, "colors": { "editor.background": "#ffffff" }\n}');
+	await new Promise(resolve => setTimeout(resolve, 180));
+	assert.equal(runs, 0);
+	for (const file of files) fs.writeFileSync(file, '{"decorationStyles":{"color":"#654321"}}');
+	await waitFor(() => runs === 1);
+	assert.deepStrictEqual(savedFiles[0].sort(), [...files].sort());
+	fs.writeFileSync(files[0], '{"decorationStyles":{"color":"#111111"}}');
+	await new Promise(resolve => setTimeout(resolve, 180));
+	assert.equal(runs, 1);
+	releaseRun();
+	await new Promise(resolve => setTimeout(resolve, 180));
+	assert.equal(runs, 1);
+	fs.writeFileSync(files[0], '{"decorationStyles":{"color":"#222222"}}');
+	await waitFor(() => runs === 2);
+	releaseRun();
+	await new Promise(resolve => setTimeout(resolve, 180));
+	watcher.dispose();
+	fs.writeFileSync(files[0], '{"decorationStyles":{"color":"#333333"}}');
+	await new Promise(resolve => setTimeout(resolve, 180));
+	assert.equal(runs, 2);
+	assert.deepStrictEqual(errors, []);
+});
+
+test("decoration agent watcher reports failures and retries on a later save", { timeout: 10000 }, async t => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "violet-decoration-failure-"));
+	const file = path.join(root, "styles.json");
+	fs.writeFileSync(file, '{"decorationStyles":{"color":"#123456"}}');
+	const errors = [];
+	let runs = 0;
+	const watcher = watchDecorationStyles({
+		files: [file], interval: 20, debounce: 40,
+		async run() {
+			runs++;
+			throw new Error("Agent failed");
+		},
+		onError: error => errors.push(error)
+	});
+	t.after(() => {
+		watcher.dispose();
+		fs.rmSync(root, { recursive: true });
+	});
+	async function waitFor(predicate) {
+		const deadline = Date.now() + 3000;
+		while (!predicate()) {
+			assert.ok(Date.now() < deadline, "Expected watcher result");
+			await new Promise(resolve => setTimeout(resolve, 20));
+		}
+	}
+	fs.writeFileSync(file, "{");
+	await waitFor(() => errors.length > 0);
+	assert.equal(runs, 0);
+	fs.writeFileSync(file, '{"decorationStyles":{"color":"#654321"}}');
+	await waitFor(() => runs === 1 && errors.some(error => error.message === "Agent failed"));
+	fs.writeFileSync(file, '{"decorationStyles":{"color":"#abcdef"}}');
+	await waitFor(() => runs === 2);
+});
 
 test("watch rebuilds palette changes and restores managed manifest colors", { timeout: 30000 }, async () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "violet-watch-"));
@@ -32,7 +119,7 @@ test("watch rebuilds palette changes and restores managed manifest colors", { ti
 	fs.writeFileSync(path.join(src, "theme.cjs"), `const color = require("./palette.cjs");
 module.exports = {
 	name: "VS Code Violet Theme",
-	decorationStyles: { unusedFontStyle: "italic" },
+	decorationStyles: { unusedFontStyle: "italic", attributeAccessForeground: color, unusedForeground: "#00000080" },
 	configurationColorDefaults: { "tab.inactiveForeground": color, "tab.unfocusedInactiveForeground": color },
 	colors: { "violetTheme.unusedForeground": "#00000080" }
 };\n`);

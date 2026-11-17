@@ -52,19 +52,23 @@ function activate(context) {
 			}
 		}));
 	}
-	const stylesPath = path.join(__dirname, "themes", "decoration-styles.json");
+	const stylesPath = path.join(__dirname, manifest.contributes.themes[0].path);
 	let generatedStyles = readStyles();
 	let decoration;
+	let attributeAccessDecoration;
+	let previousAttributeAccessColor;
 	let previousColor;
 	let previousFontStyle;
 
 	function readStyles() {
-		const styles = JSON.parse(fs.readFileSync(stylesPath, "utf8"));
+		const styles = JSON.parse(fs.readFileSync(stylesPath, "utf8")).decorationStyles;
 		const setting = manifest.contributes.configuration.properties["violetTheme.unusedFontStyle"];
-		if (typeof styles.unusedFontStyle !== "string"
+		if (!styles || typeof styles.unusedFontStyle !== "string"
 			|| !new RegExp(setting.pattern).test(styles.unusedFontStyle)
 			|| typeof styles.unusedForeground !== "string"
-			|| !/^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(styles.unusedForeground)) {
+			|| !/^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(styles.unusedForeground)
+			|| typeof styles.attributeAccessForeground !== "string"
+			|| !/^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(styles.attributeAccessForeground)) {
 			throw new Error("Invalid generated Violet decoration styles. Run npm run build.");
 		}
 		return styles;
@@ -108,6 +112,10 @@ function activate(context) {
 	function updateEditors() {
 		updateDecoration();
 		const isViolet = vscode.workspace.getConfiguration("workbench").get("colorTheme") === "VS Code Violet Theme";
+		const overrides = vscode.workspace.getConfiguration("workbench").get("colorCustomizations", {});
+		const attributeAccessColor = overrides["[VS Code Violet Theme]"]?.["violetTheme.attributeAccessForeground"]
+			?? overrides["violetTheme.attributeAccessForeground"]
+			?? generatedStyles.attributeAccessForeground;
 		for (const editor of vscode.window.visibleTextEditors) {
 			const enabled = isViolet
 				&& vscode.workspace.getConfiguration("violetTheme", editor.document.uri).get("decorateUnusedCode", true)
@@ -118,6 +126,22 @@ function activate(context) {
 					.map(diagnostic => diagnostic.range)
 				: [];
 			editor.setDecorations(decoration, ranges);
+			const attributeAccessRanges = isViolet
+				&& editor.document.languageId === "python"
+				&& vscode.workspace.getConfiguration("violetTheme", editor.document.uri).get("decorateAttributeAccessIssues", true)
+				? vscode.languages.getDiagnostics(editor.document.uri)
+					.filter(diagnostic => diagnostic.source === "Pylance"
+						&& (typeof diagnostic.code === "object" ? diagnostic.code.value : diagnostic.code) === "reportAttributeAccessIssue")
+					.map(diagnostic => diagnostic.range)
+				: [];
+			if (attributeAccessRanges.length && (!attributeAccessDecoration || attributeAccessColor !== previousAttributeAccessColor)) {
+				attributeAccessDecoration?.dispose();
+				attributeAccessDecoration = vscode.window.createTextEditorDecorationType({
+					color: attributeAccessColor
+				});
+				previousAttributeAccessColor = attributeAccessColor;
+			}
+			if (attributeAccessDecoration) editor.setDecorations(attributeAccessDecoration, attributeAccessRanges);
 		}
 	}
 
@@ -136,11 +160,12 @@ function activate(context) {
 	context.subscriptions.push(
 		{ dispose: () => fs.unwatchFile(stylesPath, reloadStyles) },
 		{ dispose: () => decoration?.dispose() },
+		{ dispose: () => attributeAccessDecoration?.dispose() },
 		vscode.languages.onDidChangeDiagnostics(updateEditors),
 		vscode.window.onDidChangeVisibleTextEditors(updateEditors),
 		vscode.window.onDidChangeActiveColorTheme(updateEditors),
 		vscode.workspace.onDidChangeConfiguration(event => {
-			if (["workbench.colorTheme", "workbench.colorCustomizations", "violetTheme.decorateUnusedCode", "violetTheme.unusedFontStyle", "editor.showUnused"]
+			if (["workbench.colorTheme", "workbench.colorCustomizations", "violetTheme.decorateUnusedCode", "violetTheme.decorateAttributeAccessIssues", "violetTheme.unusedFontStyle", "editor.showUnused"]
 				.some(setting => event.affectsConfiguration(setting))) {
 				updateEditors();
 			}

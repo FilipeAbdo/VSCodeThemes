@@ -2,8 +2,11 @@ const { common, tokens, commonColors, decorationStyles } = require("./palette.cj
 
 module.exports = {
 	"name": "VS Code Violet Theme",
+	"semanticHighlighting": true,
 	"decorationStyles": {
-		"unusedFontStyle": decorationStyles.unusedFontStyle
+		"unusedFontStyle": decorationStyles.unusedFontStyle,
+		"unusedForeground": common.unusedCodeForeground,
+		"attributeAccessForeground": common.editorForeground
 	},
 	"configurationColorDefaults": {
 		"tab.inactiveForeground": common.inactiveTabForeground,
@@ -12,17 +15,18 @@ module.exports = {
 	"colors": {
 		"editor.background": common.background,
 		"editor.foreground": common.editorForeground,
+		"editor.selectionBackground": common.selectionBackground,
 		"editorUnnecessaryCode.opacity": common.unusedCodeOpacity,
 		"violetTheme.unusedForeground": common.unusedCodeForeground,
 		"surface.background": common.background,
 		"sideBar.background": common.sidebarBackground,
 		
 		
-		"modernEditorTab.activeBackground": common.selectionBackground,
+		"modernEditorTab.activeBackground": common.selectedTabBackground,
 		"modernEditorTab.activeActionBackground": common.activeTabActionBackground,
 		"modernEditorTab.activeHoverBackground": common.accent,
 		
-		"modernTab.activeBackground": common.selectionBackground,
+		"modernTab.activeBackground": common.selectedTabBackground,
 		"modernTab.hoverBackground": common.accent,
 		"modernTab.activeForeground": common.white,
 		
@@ -31,7 +35,7 @@ module.exports = {
 		"statusBar.background": common.statusBarBackground,
 		"modernPanel.border": common.accent,
 		
-		"list.activeSelectionBackground": common.selectionBackground,
+		"list.activeSelectionBackground": common.selectedTabBackground,
 		"list.hoverBackground": common.accent,
 		"list.hoverForeground": common.white,
 		"list.activeSelectionForeground": common.white,
@@ -73,7 +77,51 @@ module.exports = {
 		"debugToolBar.background": commonColors.contrastColors.darkerForeground,
 		"debugToolBar.border": commonColors.violet.violet,
 	},
-	
+
+	"semanticTokenColors": {
+		"class": {
+			"foreground": commonColors.yellowTones.mustard,
+		},
+		"class.builtin": {
+			"foreground": commonColors.greenTones.strong,
+		},
+		"class.declaration": {
+			"foreground": tokens.classSupport,
+			"bold": true
+		},
+		"selfParameter": {
+			"foreground": commonColors.blueTones.strong,
+			"italic": true,
+			"bold": true
+		},
+		"enumMember": {
+			"foreground": commonColors.greenTones.strong,
+			"fontStyle": "bold"
+		},
+		"variable": {
+			"modifiers": "classMember",
+			"foreground": tokens.classMemberNotFunctions
+		},
+		"parameter": {
+			"foreground": commonColors.redTones.coral
+		},
+		"magicFunction": {
+			"foreground": tokens.languageMethods,
+			"fontStyle": "italic bold"
+		},
+		"module": {
+			"foreground": commonColors.blueTones.blue,
+			"fontStyle": "italic bold"
+		},
+		"builtinConstant": {
+			"foreground": commonColors.greenTones.strong,
+			"fontStyle": "italic bold"
+		},
+		"*.invalid": {
+			"foreground": "#FF00FF",
+		}
+	},
+
 	"tokenColors": [
 		{
 			"name": "Comment",
@@ -90,7 +138,7 @@ module.exports = {
 			"name": "Variables",
 			"scope": [
 				"variable",
-				"string constant.other.placeholder"
+				"variable.parameter"
 			],
 			"settings": {
 				"foreground": tokens.variables
@@ -128,9 +176,39 @@ module.exports = {
 			}
 		},
 		{
+			"name": "Keyword",
+			"scope": [
+				"keyword.control"
+			],
+			"settings": {
+				"foreground": tokens.keywordStorage,
+				"fontStyle": "bold"
+			}
+		},{
+			"name": "Keyword Flow",
+			"scope": [
+				"keyword.control.flow"
+			],
+			"settings": {
+				"foreground": tokens.keywordStorage,
+				"fontStyle": "bold"
+			}
+		},
+		{
+			"name": "Punctuation",
+			"scope": [
+				"punctuation.definition.arguments",
+				"meta.item-access",
+				"meta.member.access"
+			],
+			"settings": {
+				"foreground": commonColors.greenTones.strong
+			}
+		},
+		{
 			"name": "Operator, Misc",
 			"scope": [
-				"keyword.control",
+				"keyword.operator",
 				"constant.other.color",
 				"punctuation",
 				"meta.tag",
@@ -144,7 +222,8 @@ module.exports = {
 				"keyword.other.substitution"
 			],
 			"settings": {
-				"foreground": tokens.operatorMisc
+				"foreground": tokens.operatorMisc,
+				"fontStyle": "normal"
 			}
 		},
 		{
@@ -175,7 +254,7 @@ module.exports = {
 		{
 			"name": "Function Name Parameter Name Inline Definition",
 			"scope": [
-				"meta.object-literal.key",
+				"meta.function.parameter",
 			],
 			"settings": {
 				"foreground": tokens.functionInlineParameterNameDefinition
@@ -208,12 +287,13 @@ module.exports = {
 				"support.constant",
 				"constant.character",
 				"constant.escape",
-				"variable.parameter",
 				"keyword.other.unit",
-				"keyword.other"
+				"keyword.other",
+				"constant.other.caps"
 			],
 			"settings": {
-				"foreground": tokens.numberConstantFunctionArgumentTagAttributeEmbedded
+				"foreground": tokens.numberConstantFunctionArgumentTagAttributeEmbedded,
+				"fontStyle": "normal"
 			}
 		},
 		{
@@ -241,7 +321,8 @@ module.exports = {
 				"meta.use.php",
 				"support.other.namespace.php",
 				"markup.changed.git_gutter",
-				"support.type.sys-types"
+				"support.type.sys-types",
+				"entity.name.type.class"
 			],
 			"settings": {
 				"foreground": tokens.classSupport
@@ -282,16 +363,6 @@ module.exports = {
 			}
 		},
 		{
-			"name": "Language methods",
-			"scope": [
-				"variable.language"
-			],
-			"settings": {
-				"fontStyle": "italic",
-				"foreground": tokens.languageMethods
-			}
-		},
-		{
 			"name": "entity.name.method.js",
 			"scope": [
 				"entity.name.method.js"
@@ -318,6 +389,15 @@ module.exports = {
 			],
 			"settings": {
 				"foreground": tokens.attributes
+			}
+		},
+		{
+			"name": "Meta Attribute",
+			"scope": [
+				"meta.attribute"
+			],
+			"settings": {
+				"foreground": tokens.classMemberNotFunctions
 			}
 		},
 		{
@@ -703,5 +783,6 @@ module.exports = {
 				"foreground": tokens.markupTable
 			}
 		}
+		
 	]
 }

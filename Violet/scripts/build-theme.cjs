@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
 console.log("Building VS Code Violet Theme...");
-const { decorationStyles, configurationColorDefaults, ...theme } = require("../src/theme.cjs");
+const { configurationColorDefaults, ...theme } = require("../src/theme.cjs");
+const { decorationStyles } = theme;
 const renderPalette = require("./render-palette.cjs");
 const manifestPath = path.join(__dirname, "..", "package.json");
 
@@ -19,6 +20,14 @@ module.exports = (async () => {
 	if (typeof decorationStyles.unusedFontStyle !== "string"
 		|| !new RegExp(fontStyleSetting.pattern).test(decorationStyles.unusedFontStyle)) {
 		throw new Error(`Invalid unused font style: ${decorationStyles.unusedFontStyle}`);
+	}
+	if (typeof decorationStyles.attributeAccessForeground !== "string"
+		|| !/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(decorationStyles.attributeAccessForeground)) {
+		throw new Error(`Invalid attribute-access foreground: ${decorationStyles.attributeAccessForeground}`);
+	}
+	if (typeof decorationStyles.unusedForeground !== "string"
+		|| !/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i.test(decorationStyles.unusedForeground)) {
+		throw new Error(`Invalid unused foreground: ${decorationStyles.unusedForeground}`);
 	}
 	let manifestChanged = false;
 	if (fontStyleSetting.default !== decorationStyles.unusedFontStyle) {
@@ -42,10 +51,6 @@ module.exports = (async () => {
 	}
 	fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 	fs.writeFileSync(outputPath, `${JSON.stringify(theme, null, "\t")}\n`);
-	fs.writeFileSync(path.join(__dirname, "..", "themes", "decoration-styles.json"), `${JSON.stringify({
-		unusedFontStyle: decorationStyles.unusedFontStyle,
-		unusedForeground: theme.colors["violetTheme.unusedForeground"]
-	}, null, 2)}\n`);
 	if (process.argv.includes("--development")) {
 		require("./build-development.cjs")(
 			path.join(__dirname, ".."),

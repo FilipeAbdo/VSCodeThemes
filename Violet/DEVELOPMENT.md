@@ -35,6 +35,62 @@ Extension Development Host. Further source saves rebuild automatically.
 Packaging with `vsce package` also builds automatically via `vscode:prepublish`.
 The source and build scripts are excluded from the packaged extension.
 
+## Palette references in decoration styles
+
+Author decoration values in [src/theme.cjs](src/theme.cjs) using the existing
+`common`, `tokens`, `commonColors`, and `decorationStyles` imports from
+[src/palette.cjs](src/palette.cjs). For example:
+
+```js
+"decorationStyles": {
+    "unusedFontStyle": decorationStyles.unusedFontStyle,
+    "attributeAccessForeground": common.editorForeground
+}
+```
+
+To select a specific palette color, replace `common.editorForeground` with,
+for example, `commonColors.redTones.red` or `tokens.invalid`. For a font-style
+string containing a color, use `"italic underline wavy " + commonColors.yellowTones.mustard`.
+These are JavaScript references, not quoted reference names.
+
+Run `node scripts/build-theme.cjs --development` to resolve these references
+into literal values under `decorationStyles` in both generated color-theme JSON copies.
+The installed runtime needs only the generated JSON, not the palette module.
+Keep palette references in the source; JSON cannot import or evaluate them.
+
+## Decoration maintenance agent
+
+The **Violet Decorations** custom agent checks decoration parameters end-to-end:
+source, build serialization/validation, runtime application, reloads, and tests.
+Invoke it manually in Copilot or start **Watch Violet decorations with AI**
+from **Tasks: Run Task** (`npm run watch:decorations:agent`).
+
+The watcher requires the standalone GitHub Copilot CLI, authenticated with
+`copilot login`; VS Code's Copilot shim alone is not sufficient. See the
+[CLI setup guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started).
+Run a development build first so both generated theme files exist.
+Trust this repository in the CLI before starting the watcher.
+It grants write access and permission for `node --test*` and
+`node scripts/build-theme.cjs*` commands, not blanket tool approval.
+Other permissions may need separate approval. It does not choose a model.
+
+After startup, changes to `decorationStyles` in either generated color-theme JSON
+trigger a debounced AI maintenance pass.
+Whitespace-only saves and changes to other sections do not trigger it. Agent runs never overlap, and changes
+during a run are absorbed as its final state to prevent rebuild loops.
+Do not edit styles during a run; save again after it completes if necessary.
+Normally edit `src/theme.cjs` under `decorationStyles`; a subsequent build changes
+the watched output. If editing generated parameters directly, ensure the two
+saved copies do not conflict; the watcher identifies them so the agent can
+distinguish requested changes from a stale generated copy. The agent must
+preserve intended changes in the source.
+Unclear new parameter behavior is reported, not invented.
+
+This watcher is opt-in and not part of F5 or the ordinary theme build.
+Each run can consume Copilot requests and edit workspace files. Review its
+changes; AI checks cannot guarantee correctness or appearance.
+Stop the task or press Ctrl+C to stop watching.
+
 ## Inactive editor tabs
 
 Set `common.inactiveTabForeground` and `common.unfocusedInactiveTabForeground`
@@ -73,11 +129,12 @@ The runtime maps these to decoration `fontStyle`, `fontWeight`, and
 It is wired into the `decorationStyles` section of [src/theme.cjs](src/theme.cjs),
 alongside `colors` and `tokenColors`, so the theme source declares all style
 mappings. You can override the value there instead of changing the palette.
-This section is build metadata and is omitted from the generated color-theme JSON.
+This section is embedded in the generated color-theme JSON for the extension
+runtime; VS Code's theme engine does not apply decorations itself.
 The build validates it and updates the setting default in [package.json](package.json);
 commit that generated default along with the theme. Explicit user settings win.
-The build also writes `themes/decoration-styles.json`. The runtime watches this
-file and refreshes decoration colors, opacity, and font styles after each build,
+The runtime watches the generated theme JSON and reads its `decorationStyles`
+section, refreshing decoration colors, opacity, and font styles after each build,
 without restarting debugging. Commit this generated file and include it when
 installing the extension. Explicit user/workspace font-style settings still win.
 Use either `strikethrough` or `line-through` for a strikeout.
@@ -87,7 +144,7 @@ The CSS decoration style applies to both lines if combined with strikethrough.
 Append a six- or eight-digit hex color to color the decoration independently of
 the foreground, for example `italic underline wavy #FF00FF`. A trailing color
 requires an underline or strikethrough. Edit the source default, not the generated
-`themes/decoration-styles.json`, since builds overwrite that file.
+theme JSON, since builds overwrite that file.
 This is a window-scoped
 extension setting, not a theme color key. Changes recreate the decorations
 immediately in both foreground and opacity-only modes.
@@ -163,6 +220,38 @@ It does not commit files or modify your branch; commit generated files locally
 to update the palette displayed in the repository README.
 GitHub Actions cannot observe unsaved edits or local saves; F5/watch handles
 local saves and GitHub Actions runs after pushing them.
+
+### Creating a versioned release
+
+Use numeric tags without a `v` prefix, for example `1.2.3`.
+Finish validation and commit your work first, and stop build/AI watchers.
+From `Violet`, run:
+
+```sh
+npm run release -- 1.2.3
+```
+
+This requires a clean repository and a checked-out branch. It uses `npm version`
+to synchronize `package.json` and `package-lock.json` without running lifecycle
+scripts, commits the files, then creates the annotated tag `1.2.3` on that commit.
+The commit includes the Copilot co-author trailer. No build, test, push, extension
+installation, or publication is performed by this command.
+An existing tag or an invalid version is rejected before modifying files.
+If a later Git/npm operation fails, inspect the working tree, commits, and tags
+before retrying; changes are not automatically rolled back.
+
+When ready, push your branch and its release tag:
+
+```sh
+git push
+git push origin 1.2.3
+```
+
+The tag push triggers **Build Violet theme**, which verifies that the tag and both
+version files match and uploads the manifests with the build artifacts.
+Creating a tag manually does not rewrite files in its commit; mismatches fail
+the release build instead. A tag is a reference to an existing commit, so the
+version update must happen before tag creation.
 
 ## Rebuilding on save
 
