@@ -4,7 +4,7 @@
   "publisher": "FilipeAbdo",
   "icon": "images/icon.png",
   "description": "VS Code Color Theme Violet [Dark]",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "main": "./extension.cjs",
   "activationEvents": [
     "onStartupFinished"
