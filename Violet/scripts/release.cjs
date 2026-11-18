@@ -2,12 +2,29 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 
-function createRelease(version, root = path.join(__dirname, "..")) {
-	if (typeof version !== "string" || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
-		throw new Error("Usage: npm run release -- 1.2.3 (numeric major.minor.patch, without a v prefix).");
+const versionPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+const usage = "Usage: npm run release [-- --significant|-i|--major|-m|1.2.3] (default: patch).";
+
+function resolveVersion(request, currentVersion) {
+	if (typeof request === "string" && versionPattern.test(request)) return request;
+	if (request !== undefined && !["--significant", "-i", "--major", "-m"].includes(request)) {
+		throw new Error(usage);
 	}
+	if (typeof currentVersion !== "string" || !versionPattern.test(currentVersion)) {
+		throw new Error(`Cannot increment invalid package version: ${currentVersion}`);
+	}
+	const parts = currentVersion.split(".").map(BigInt);
+	const index = ["--major", "-m"].includes(request) ? 0
+		: ["--significant", "-i"].includes(request) ? 1 : 2;
+	parts[index] += 1n;
+	for (let i = index + 1; i < parts.length; i++) parts[i] = 0n;
+	return parts.join(".");
+}
+
+function createRelease(request, root = path.join(__dirname, "..")) {
+	const version = resolveVersion(request, JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version);
 	const npmCli = process.env.npm_execpath;
-	if (!npmCli) throw new Error("Run this command through npm: npm run release -- 1.2.3");
+	if (!npmCli) throw new Error("Run this command through npm: npm run release");
 	const git = args => execFileSync("git", ["--no-pager", ...args], {
 		cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"]
 	}).trim();
@@ -36,11 +53,12 @@ function createRelease(version, root = path.join(__dirname, "..")) {
 	}
 	git(["tag", "-a", version, "-m", `Violet ${version}`]);
 	console.log(`Created release commit and tag ${version}. Nothing pushed.`);
+	return version;
 }
 
 if (require.main === module) {
 	try {
-		if (process.argv.length !== 3) throw new Error("Usage: npm run release -- 1.2.3");
+		if (process.argv.length > 3) throw new Error(usage);
 		createRelease(process.argv[2]);
 	} catch (error) {
 		console.error(error.message);
@@ -51,3 +69,4 @@ if (require.main === module) {
 }
 
 module.exports = createRelease;
+module.exports.resolveVersion = resolveVersion;

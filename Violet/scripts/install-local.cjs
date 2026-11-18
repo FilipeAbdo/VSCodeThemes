@@ -19,6 +19,12 @@ if (fs.existsSync(destination)) {
 }
 
 async function installLocal() {
+	const options = process.argv.slice(2).filter(argument => argument !== "--release");
+	if (options.length > 1 || options.some(option => !["--significant", "-i", "--major", "-m"].includes(option))
+		|| (!release && options.length)) {
+		throw new Error("Usage: npm run install:local:release [-- --significant|-i|--major|-m]. Version flags require --release.");
+	}
+	if (release) require("./release.cjs")(options[0], root);
 	await require("./build-theme.cjs");
 
 	const files = [

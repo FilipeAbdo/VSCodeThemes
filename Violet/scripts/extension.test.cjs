@@ -50,21 +50,32 @@ test("local installer switches between development and release in the same direc
 	const manifest = require("../package.json");
 	const destination = path.join(home, ".vscode", "extensions", `${manifest.name}-local`);
 	try {
-		for (const release of [false, true, false]) {
+		for (const option of [false, undefined, "--significant", "-i", "--major", "-m", false]) {
+			const release = option !== false;
+			const operations = [];
 			const sandbox = {
 				module: { exports: {} },
 				__dirname,
-				process: { argv: release ? ["--release"] : [], exitCode: 0 },
+				process: { argv: ["node", "install-local.cjs", ...(release ? ["--release", ...(option ? [option] : [])] : [])], exitCode: 0 },
 				console: { log() {}, error() {} },
 				require(name) {
 					if (name === "node:os") return { homedir: () => home };
 					if (name === "./dev-target.cjs") return { getDestination: () => destination };
-					if (name === "./build-theme.cjs") return Promise.resolve();
+					if (name === "./release.cjs") return (option, directory) => {
+						assert.equal(option, sandbox.process.argv[3]);
+						assert.equal(directory, root);
+						operations.push("release");
+					};
+					if (name === "./build-theme.cjs") {
+						operations.push("build");
+						return Promise.resolve();
+					}
 					return require(name);
 				}
 			};
 			vm.runInNewContext(fs.readFileSync(path.join(__dirname, "install-local.cjs"), "utf8"), sandbox);
 			await sandbox.module.exports;
+			assert.deepStrictEqual(operations, release ? ["release", "build"] : ["build"]);
 			const installed = JSON.parse(fs.readFileSync(path.join(destination, "package.json"), "utf8"));
 			assert.equal(installed.contributes.commands.some(({ command }) => command === "violetTheme.installAndReload"), !release);
 			assert.equal(Boolean(installed.contributes.keybindings), !release);
@@ -74,6 +85,41 @@ test("local installer switches between development and release in the same direc
 		}
 	} finally {
 		fs.rmSync(home, { recursive: true });
+	}
+});
+
+test("release install stops before building or copying if versioning fails or options are invalid", async () => {
+	for (const flags of [
+		["--release"], ["--release", "-i", "-m"], ["--release", "--unknown"], ["-i"]
+	]) {
+		const failure = new Error("Release requires a clean repository");
+		let releases = 0;
+		let exitCode = 0;
+		const sandbox = {
+			module: { exports: {} },
+			__dirname,
+			process: {
+				argv: ["node", "install-local.cjs", ...flags],
+				get exitCode() { return exitCode; },
+				set exitCode(value) { exitCode = value; }
+			},
+			console: { log() {}, error() {} },
+			require(name) {
+				if (name === "./dev-target.cjs") return { getDestination: () => path.join(__dirname, "not-installed") };
+				if (name === "node:fs") return {
+					existsSync: () => false,
+					copyFileSync() { assert.fail("Must not copy after release failure"); }
+				};
+				if (name === "./release.cjs") return () => { releases++; throw failure; };
+				if (name === "./build-theme.cjs") assert.fail("Must not build after release failure");
+				return require(name);
+			}
+		};
+		vm.runInNewContext(fs.readFileSync(path.join(__dirname, "install-local.cjs"), "utf8"), sandbox);
+		await assert.rejects(sandbox.module.exports, flags.length === 1 && flags[0] === "--release"
+			? /clean repository/ : /Usage/);
+		assert.equal(releases, flags.length === 1 && flags[0] === "--release" ? 1 : 0);
+		assert.equal(exitCode, 1);
 	}
 });
 

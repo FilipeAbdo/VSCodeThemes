@@ -228,12 +228,26 @@ Finish validation and commit your work first, and stop build/AI watchers.
 From `Violet`, run:
 
 ```sh
+npm run release
+npm run release -- --significant
+npm run release -- -i
+npm run release -- --major
+npm run release -- -m
+```
+
+With no argument, the patch component increases (`1.2.3` becomes `1.2.4`).
+`--significant` or `-i` increases minor and resets patch (`1.2.3` becomes `1.3.0`).
+`--major` or `-m` increases major and resets minor and patch (`1.2.3` becomes `2.0.0`).
+Pass one option only, after npm's `--` separator. An explicit version remains
+available when needed:
+
+```sh
 npm run release -- 1.2.3
 ```
 
 This requires a clean repository and a checked-out branch. It uses `npm version`
 to synchronize `package.json` and `package-lock.json` without running lifecycle
-scripts, commits the files, then creates the annotated tag `1.2.3` on that commit.
+scripts, commits the files, then creates an annotated tag matching the version on that commit.
 The commit includes the Copilot co-author trailer. No build, test, push, extension
 installation, or publication is performed by this command.
 An existing tag or an invalid version is rejected before modifying files.
@@ -309,6 +323,16 @@ Default local installs and F5 builds include the install/reload command and shor
 For a local release install, select **Tasks: Run Task > Install Violet release
 locally**, or run `npm run install:local:release`. This replaces the same local
 extension with the release variant, without the development command or shortcut.
+Every release install first increments the patch version, commits both version
+files, and creates the matching tag using the release command. It requires a clean
+repository: commit your changes and stop build/AI watchers first. To choose another
+increment, use `npm run install:local:release -- --significant` (or `-i`) for minor,
+or `npm run install:local:release -- --major` (or `-m`) for major.
+The release VS Code task/shortcut uses the default patch increment.
+Development installs do not increment, commit, or tag.
+Versioning failure prevents building/installing. If building or installing fails
+after versioning succeeds, the commit/tag remain; inspect them before retrying,
+because another successful invocation creates another version. Nothing is pushed.
 From a development build, **Ctrl+K, Ctrl+Shift+I** or **Violet Theme: Install
 Release Locally and Reload Window** runs this release task and reloads the
 invoking window only after success. Both install shortcuts disappear after
