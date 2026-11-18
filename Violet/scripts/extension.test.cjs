@@ -52,19 +52,23 @@ test("release impact picker selects the task, cancels safely, and reloads only o
 		[undefined, undefined]
 	]) {
 		for (const exitCode of [0, 1]) {
+			const checks = [];
 			let endTask;
 			let fetched = false;
 			let executed = false;
 			let reloaded = false;
-			const task = { name: expectedTask };
+			const task = { name: expectedTask || "Install Violet release locally", scope: { uri: { fsPath: "C:\\Violet" } } };
+			const tasks = task.name === "Install Violet release locally" ? [task]
+				: [{ name: "Install Violet release locally", scope: task.scope }, task];
 			const vscode = {
 				window: {
 					async showQuickPick(items) {
+						assert.equal(checks.length, 2);
 						return items.find(item => item.label === label);
 					}
 				},
 				tasks: {
-					async fetchTasks() { fetched = true; return [task]; },
+					async fetchTasks() { fetched = true; return tasks; },
 					onDidEndTaskProcess(callback) { endTask = callback; return { dispose() {} }; },
 					async executeTask(selected) {
 						assert.equal(selected.name, expectedTask);
@@ -76,16 +80,99 @@ test("release impact picker selects the task, cancels safely, and reloads only o
 			};
 			const sandbox = {
 				module: { exports: {} },
-				require: name => name === "vscode" ? vscode
+				require: name => name === "node:child_process" ? {
+					execFile(command, args, options, callback) {
+						assert.equal(command, "git");
+						assert.equal(options.cwd, "C:\\Violet");
+						checks.push(args);
+						callback(null, "", "");
+					}
+				} : name === "vscode" ? vscode
 					: name === "./package.json" ? require("../package.json") : require(name)
 			};
 			vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "extension.cjs"), "utf8"), sandbox);
 			const result = sandbox.module.exports.installAndReload(true, true);
 			if (label && exitCode !== 0) await assert.rejects(result, /Window not reloaded/);
 			else await result;
-			assert.equal(fetched, Boolean(label));
+			assert.equal(fetched, true);
 			assert.equal(executed, Boolean(label));
 			assert.equal(reloaded, Boolean(label) && exitCode === 0);
+		}
+	}
+});
+
+test("release preflight blocks the impact picker without waiting for notification dismissal and reports Git failures", { timeout: 3000 }, async () => {
+	for (const condition of ["dirty", "git-error", "missing-scope"]) {
+		const messages = [];
+		const terminalOutput = [];
+		let terminalShown = false;
+		let terminalClosed = false;
+		let terminalPty;
+		const cwd = "C:\\Violet";
+		const sandbox = {
+			module: { exports: {} },
+			require(name) {
+				if (name === "./package.json") return require("../package.json");
+				if (name === "node:child_process") return {
+					execFile(command, args, options, callback) {
+						assert.equal(options.cwd, cwd);
+						if (condition === "git-error") callback(new Error("Cannot run Git"));
+						else callback(null, args[0] === "status" ? " M Violet/package.json\n" : "", "");
+					}
+				};
+				if (name === "vscode") return {
+					EventEmitter: class {
+						event = callback => { this.callback = callback; };
+						fire(value) { this.callback(value); }
+						dispose() { terminalClosed = true; }
+					},
+					tasks: {
+						async fetchTasks() {
+							return [{
+								name: "Install Violet release locally",
+								...(condition === "missing-scope" ? {} : { scope: { uri: { fsPath: cwd } } })
+							}];
+						},
+						executeTask() { assert.fail("Blocked release must not run a task"); }
+					},
+					window: {
+						createTerminal(options) {
+							assert.equal(options.name, "Violet release status");
+							terminalPty = options.pty;
+							terminalPty.onDidWrite(value => terminalOutput.push(value));
+							return {
+								show(preserveFocus) {
+									assert.equal(preserveFocus, true);
+									terminalShown = true;
+									terminalPty.open();
+								}
+							};
+						},
+						showQuickPick() { assert.fail("Preflight must happen before the picker"); },
+						showErrorMessage(message) {
+							messages.push(message);
+							return new Promise(() => {});
+						}
+					},
+					commands: { executeCommand() { assert.fail("Blocked release must not reload"); } }
+				};
+				return require(name);
+			}
+		};
+		vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "extension.cjs"), "utf8"), sandbox);
+		const result = sandbox.module.exports.installAndReload(true, true);
+		if (condition === "dirty") {
+			await result;
+			assert.equal(messages.length, 1);
+			assert.match(messages[0], /Release blocked:.*Commit or stash.*Stop build watchers first/);
+			assert.equal(terminalShown, true);
+			assert.deepStrictEqual(terminalOutput, [`\x1b[31m${messages[0]}\x1b[0m\r\n`]);
+			terminalPty.close();
+			assert.equal(terminalClosed, true);
+		} else {
+			await assert.rejects(result, condition === "git-error" ? /Cannot run Git/ : /workspace-folder/);
+			assert.deepStrictEqual(messages, []);
+			assert.equal(terminalShown, false);
 		}
 	}
 });
@@ -123,8 +210,8 @@ test("local installer switches between development and release in the same direc
 			await sandbox.module.exports;
 			assert.deepStrictEqual(operations, release ? ["release", "build"] : ["build"]);
 			const installed = JSON.parse(fs.readFileSync(path.join(destination, "package.json"), "utf8"));
-			assert.equal(installed.contributes.commands.some(({ command }) => command === "violetTheme.installAndReload"), !release);
-			assert.equal(Boolean(installed.contributes.keybindings), !release);
+			assert.deepStrictEqual(installed.contributes.commands, manifest.contributes.commands);
+			assert.deepStrictEqual(installed.contributes.keybindings, manifest.contributes.keybindings);
 			for (const file of [manifest.main, manifest.icon, ...manifest.contributes.themes.map(theme => theme.path)]) {
 				assert.deepStrictEqual(fs.readFileSync(path.join(destination, file)), fs.readFileSync(path.join(root, file)));
 			}
@@ -218,7 +305,7 @@ test("built-in install target follows the active versioned VS Code folder", () =
 	}
 });
 
-test("development build adds shortcuts without changing the release manifest", () => {
+test("development build preserves shared release shortcuts without duplicates", () => {
 	const root = path.join(__dirname, "..");
 	const destination = fs.mkdtempSync(path.join(require("node:os").tmpdir(), "violet-development-"));
 	const original = fs.readFileSync(path.join(root, "package.json"), "utf8");
@@ -226,18 +313,9 @@ test("development build adds shortcuts without changing the release manifest", (
 		require("./build-development.cjs")(root, destination);
 		const release = JSON.parse(original);
 		const development = JSON.parse(fs.readFileSync(path.join(destination, "package.json"), "utf8"));
-		assert.equal(release.contributes.commands.some(({ command }) => command === "violetTheme.installAndReload"), false);
-		assert.equal(release.contributes.keybindings, undefined);
-		assert.deepStrictEqual(development.contributes.commands, [...release.contributes.commands, {
-			command: "violetTheme.installAndReload",
-			title: "Violet Theme: Install Locally and Reload Window"
-		}, {
-			command: "violetTheme.installReleaseAndReload",
-			title: "Violet Theme: Install Release Locally and Reload Window"
-		}, {
-			command: "violetTheme.chooseReleaseAndReload",
-			title: "Violet Theme: Choose Release Impact, Install and Reload"
-		}]);
+		assert.deepStrictEqual(development.contributes.commands, release.contributes.commands);
+		assert.equal(release.contributes.commands.some(({ command }) => command === "violetTheme.chooseReleaseAndReload"), true);
+		assert.equal(new Set(development.contributes.commands.map(item => item.command)).size, development.contributes.commands.length);
 		assert.deepStrictEqual(development.contributes.keybindings, [{
 			command: "violetTheme.installAndReload",
 			key: "ctrl+k ctrl+i",
@@ -249,11 +327,6 @@ test("development build adds shortcuts without changing the release manifest", (
 		}, {
 			command: "violetTheme.chooseReleaseAndReload",
 			key: "ctrl+k ctrl+/",
-			when: "workspaceFolderCount > 0"
-		}, {
-			command: "workbench.action.tasks.runTask",
-			args: "Toggle Violet dev environment",
-			key: "ctrl+k ctrl+e",
 			when: "workspaceFolderCount > 0"
 		}]);
 		for (const file of [release.main, release.icon, ...release.contributes.themes.map(theme => theme.path)]) {
@@ -427,6 +500,9 @@ for (const development of [false, true]) test(`unused decorations and command re
 		__dirname: path.join(__dirname, ".."),
 		require: name => {
 			if (name === "node:path") return path;
+			if (name === "node:child_process") return {
+				execFile() { assert.fail("Activation must not check repository status"); }
+			};
 			if (name === "node:fs") return {
 				readFileSync: file => {
 					assert.equal(file, path.join(__dirname, "..", "themes", "VS Code Violet Theme-color-theme.json"));
@@ -439,13 +515,7 @@ for (const development of [false, true]) test(`unused decorations and command re
 				unwatchFile: () => { unwatched = true; }
 			};
 			if (name === "./package.json") {
-				const manifest = structuredClone(require("../package.json"));
-				if (development) manifest.contributes.commands = [
-					{ command: "violetTheme.installAndReload" },
-					{ command: "violetTheme.installReleaseAndReload" },
-					{ command: "violetTheme.chooseReleaseAndReload" }
-				];
-				return manifest;
+				return structuredClone(require("../package.json"));
 			}
 			if (name === "./themes/VS Code Violet Theme-color-theme.json") {
 				return { colors: { "violetTheme.unusedForeground": "#65737E" } };
@@ -456,8 +526,8 @@ for (const development of [false, true]) test(`unused decorations and command re
 	};
 	vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "extension.cjs"), "utf8"), sandbox);
 	sandbox.module.exports.activate({ subscriptions, extensionUri: "file:///installed-violet" });
-	assert.deepStrictEqual(registeredCommands, development
-		? ["violetTheme.previewPalette", "violetTheme.installAndReload", "violetTheme.installReleaseAndReload", "violetTheme.chooseReleaseAndReload"] : ["violetTheme.previewPalette"]);
+	assert.deepStrictEqual(registeredCommands,
+		["violetTheme.previewPalette", "violetTheme.installAndReload", "violetTheme.installReleaseAndReload", "violetTheme.chooseReleaseAndReload"]);
 	await commandHandlers.get("violetTheme.previewPalette")();
 	assert.deepStrictEqual(opened, [["vscode.open", "file:///installed-violet/images/palette.png"]]);
 	assert.equal(options.fontStyle, "italic");

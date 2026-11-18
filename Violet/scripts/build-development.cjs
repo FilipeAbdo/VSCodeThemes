@@ -3,25 +3,6 @@ const path = require("node:path");
 
 module.exports = function buildDevelopment(root, destination) {
 	const manifest = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-	const command = "violetTheme.installAndReload";
-	manifest.contributes.commands = [
-		...(manifest.contributes.commands || []),
-		{ command, title: "Violet Theme: Install Locally and Reload Window" },
-		{ command: "violetTheme.installReleaseAndReload", title: "Violet Theme: Install Release Locally and Reload Window" },
-		{ command: "violetTheme.chooseReleaseAndReload", title: "Violet Theme: Choose Release Impact, Install and Reload" }
-	];
-	manifest.contributes.keybindings = [
-		...(manifest.contributes.keybindings || []),
-		{ command, key: "ctrl+k ctrl+i", when: "workspaceFolderCount > 0" },
-		{ command: "violetTheme.installReleaseAndReload", key: "ctrl+k ctrl+shift+i", when: "workspaceFolderCount > 0" },
-		{ command: "violetTheme.chooseReleaseAndReload", key: "ctrl+k ctrl+/", when: "workspaceFolderCount > 0" },
-		{
-			command: "workbench.action.tasks.runTask",
-			args: "Toggle Violet dev environment",
-			key: "ctrl+k ctrl+e",
-			when: "workspaceFolderCount > 0"
-		}
-	];
 	const files = [
 		manifest.main,
 		manifest.icon,

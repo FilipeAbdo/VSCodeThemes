@@ -4,7 +4,7 @@
   "publisher": "FilipeAbdo",
   "icon": "images/icon.png",
   "description": "VS Code Color Theme Violet [Dark]",
-  "version": "1.0.0",
+  "version": "0.2.1",
   "main": "./extension.cjs",
   "activationEvents": [
     "onStartupFinished"
@@ -37,6 +37,35 @@
       {
         "command": "violetTheme.previewPalette",
         "title": "Violet Theme: Preview Color Palette"
+      },
+      {
+        "command": "violetTheme.installAndReload",
+        "title": "Violet Theme: Install Locally and Reload Window"
+      },
+      {
+        "command": "violetTheme.installReleaseAndReload",
+        "title": "Violet Theme: Install Release Locally and Reload Window"
+      },
+      {
+        "command": "violetTheme.chooseReleaseAndReload",
+        "title": "Violet Theme: Choose Release Impact, Install and Reload"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "violetTheme.installAndReload",
+        "key": "ctrl+k ctrl+i",
+        "when": "workspaceFolderCount > 0"
+      },
+      {
+        "command": "violetTheme.installReleaseAndReload",
+        "key": "ctrl+k ctrl+shift+i",
+        "when": "workspaceFolderCount > 0"
+      },
+      {
+        "command": "violetTheme.chooseReleaseAndReload",
+        "key": "ctrl+k ctrl+/",
+        "when": "workspaceFolderCount > 0"
       }
     ],
     "configuration": {

@@ -291,7 +291,7 @@ installed copy.
 
 ## Installing locally
 
-With the development extension loaded, press **Ctrl+K, Ctrl+I** or run **Violet Theme:
+With either extension variant loaded, press **Ctrl+K, Ctrl+I** or run **Violet Theme:
 Install Locally and Reload Window**. It runs the workspace task **Install Violet
 theme locally**, waits for a successful exit, then reloads the window where the
 command was invoked. Failed or cancelled tasks do not reload the window.
@@ -314,42 +314,48 @@ If **Toggle Violet dev environment** is set to **VS Code built-in extensions**,
 the installer follows the active app folder in VS Code's `bin\code.cmd` launcher,
 including versioned app folders.
 
-Use **Toggle Violet dev environment**, `npm run toggle:env`, or **Ctrl+K, Ctrl+E**
-with the development extension loaded to switch the installation destination.
+Use **Tasks: Run Task > Toggle Violet dev environment** or `npm run toggle:env`
+to switch the installation destination.
 Both development and release local installs use this shared selection.
 The toggle does not move the workspace or change build inputs: build, palette,
 and icon scripts resolve project files relative to their own script directory,
 not the terminal's current directory or the selected VS Code installation.
 F5 staging stays in the workspace's `.vscode/development` directory.
 
-Default local installs and F5 builds include the install/reload command and shortcut.
+Development and release installs include the same install/reload commands and shortcuts.
 For a local release install, select **Tasks: Run Task > Install Violet release
 locally**, or run `npm run install:local:release`. This replaces the same local
-extension with the release variant, without the development command or shortcut.
+extension with the release variant, preserving all commands and shortcuts.
 Every release install first increments the patch version, commits both version
 files, and creates the matching tag using the release command. It requires a clean
 repository: commit your changes and stop build/AI watchers first. To choose another
 increment, use `npm run install:local:release -- --significant` (or `-i`) for minor,
 or `npm run install:local:release -- --major` (or `-m`) for major.
 The release VS Code task/shortcut uses the default patch increment.
-In the development extension, **Ctrl+K, Ctrl+/** opens **Violet Theme: Choose
+In either extension variant, **Ctrl+K, Ctrl+/** opens **Violet Theme: Choose
 Release Impact, Install and Reload**. Select **Patch**, **Minor**, or **Major**
 to run the corresponding release install task; Escape cancels without changes.
+The task's repository is checked before showing the picker; a dirty repository
+shows a **Release blocked** notification and a red message in the
+**Violet release status** terminal instead. The installer checks again before
+versioning to catch changes made after the picker opened.
+Error notifications do not hold the install-operation lock; dismissing a
+notification is not required before retrying an install shortcut.
 The same clean-repository requirement applies. Reload happens only after a
 successful installation.
 Development installs do not increment, commit, or tag.
 Versioning failure prevents building/installing. If building or installing fails
 after versioning succeeds, the commit/tag remain; inspect them before retrying,
 because another successful invocation creates another version. Nothing is pushed.
-From a development build, **Ctrl+K, Ctrl+Shift+I** or **Violet Theme: Install
+From either variant, **Ctrl+K, Ctrl+Shift+I** or **Violet Theme: Install
 Release Locally and Reload Window** runs this release task and reloads the
-invoking window only after success. Both install shortcuts disappear after
-switching to release; use the task or terminal to install development again.
-Reload the window afterward to apply the change. Use `npm run install:local`
-to switch back to the development variant.
-The source `package.json` remains release-ready: `npm run build` and
-`vscode:prepublish` do not add either contribution, so release packages leave
-the normal hover shortcut untouched and do not register the development command.
+invoking window only after success. All shortcuts remain registered after
+switching to release. Use `npm run install:local` to switch back to the
+development variant. Contributions are declared in the shared `package.json`;
+development staging does not add duplicate commands or keybindings.
+These task-based commands still require the Violet project and its npm tasks.
+The normal editor hover chord is overridden in either variant while a workspace
+folder is open; customize Keyboard Shortcuts if needed.
 
 ## Working with Markdown
 

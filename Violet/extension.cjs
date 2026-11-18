@@ -1,11 +1,41 @@
 const vscode = require("vscode");
 const fs = require("node:fs");
 const path = require("node:path");
+const { execFile } = require("node:child_process");
 const manifest = require("./package.json");
 
 async function installAndReload(release = false, chooseImpact = false) {
 	let taskName = release ? "Install Violet release locally" : "Install Violet theme locally";
+	const tasks = await vscode.tasks.fetchTasks({ type: "npm" });
 	if (chooseImpact) {
+		const releaseTasks = tasks.filter(task => task.name === taskName);
+		if (releaseTasks.length !== 1 || !releaseTasks[0].scope?.uri?.fsPath) {
+			throw new Error(`Open the Violet project with exactly one workspace-folder '${taskName}' task.`);
+		}
+		const cwd = releaseTasks[0].scope.uri.fsPath;
+		const git = args => new Promise((resolve, reject) => {
+			execFile("git", args, { cwd }, (error, stdout) => {
+				if (error) reject(error);
+				else resolve(stdout);
+			});
+		});
+		await git(["symbolic-ref", "--quiet", "HEAD"]);
+		const stdout = await git(["status", "--porcelain", "--untracked-files=normal"]);
+		if (stdout.trim()) {
+			const message = "Release blocked: repository is not clean. Commit or stash all repository changes before creating a release. Stop build watchers first.";
+			const writeEmitter = new vscode.EventEmitter();
+			const terminal = vscode.window.createTerminal({
+				name: "Violet release status",
+				pty: {
+					onDidWrite: writeEmitter.event,
+					open() { writeEmitter.fire(`\x1b[31m${message}\x1b[0m\r\n`); },
+					close() { writeEmitter.dispose(); }
+				}
+			});
+			terminal.show(true);
+			void vscode.window.showErrorMessage(message);
+			return;
+		}
 		const impact = await vscode.window.showQuickPick([
 			{ label: "Patch", description: "Increment patch: 1.2.3 -> 1.2.4", taskName: "Install Violet release locally" },
 			{ label: "Minor", description: "Increment minor: 1.2.3 -> 1.3.0", taskName: "Install Violet minor release locally" },
@@ -14,7 +44,6 @@ async function installAndReload(release = false, chooseImpact = false) {
 		if (!impact) return;
 		taskName = impact.taskName;
 	}
-	const tasks = await vscode.tasks.fetchTasks({ type: "npm" });
 	const matches = tasks.filter(task => task.name === taskName);
 	if (matches.length !== 1) {
 		throw new Error(`Open the Violet project with exactly one '${taskName}' task.`);
@@ -56,7 +85,7 @@ function activate(context) {
 				await installAndReload(release, chooseImpact);
 			} catch (error) {
 				console.error("Violet local installation failed:", error);
-				await vscode.window.showErrorMessage(`Violet: ${error.message}`);
+				void vscode.window.showErrorMessage(`Violet: ${error.message}`);
 			} finally {
 				installing = false;
 			}
