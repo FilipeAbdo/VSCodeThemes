@@ -3,8 +3,17 @@ const fs = require("node:fs");
 const path = require("node:path");
 const manifest = require("./package.json");
 
-async function installAndReload(release = false) {
-	const taskName = release ? "Install Violet release locally" : "Install Violet theme locally";
+async function installAndReload(release = false, chooseImpact = false) {
+	let taskName = release ? "Install Violet release locally" : "Install Violet theme locally";
+	if (chooseImpact) {
+		const impact = await vscode.window.showQuickPick([
+			{ label: "Patch", description: "Increment patch: 1.2.3 -> 1.2.4", taskName: "Install Violet release locally" },
+			{ label: "Minor", description: "Increment minor: 1.2.3 -> 1.3.0", taskName: "Install Violet minor release locally" },
+			{ label: "Major", description: "Increment major: 1.2.3 -> 2.0.0", taskName: "Install Violet major release locally" }
+		], { title: "Violet release impact", placeHolder: "Choose version impact (commits, tags, installs, and reloads)" });
+		if (!impact) return;
+		taskName = impact.taskName;
+	}
 	const tasks = await vscode.tasks.fetchTasks({ type: "npm" });
 	const matches = tasks.filter(task => task.name === taskName);
 	if (matches.length !== 1) {
@@ -34,16 +43,17 @@ function activate(context) {
 		vscode.commands.executeCommand("vscode.open", vscode.Uri.joinPath(context.extensionUri, "images", "palette.png"))
 	));
 	let installing = false;
-	for (const [command, release] of [
+	for (const [command, release, chooseImpact] of [
 		["violetTheme.installAndReload", false],
-		["violetTheme.installReleaseAndReload", true]
+		["violetTheme.installReleaseAndReload", true],
+		["violetTheme.chooseReleaseAndReload", true, true]
 	]) {
 		if (!manifest.contributes.commands?.some(contribution => contribution.command === command)) continue;
 		context.subscriptions.push(vscode.commands.registerCommand(command, async () => {
 			if (installing) return;
 			installing = true;
 			try {
-				await installAndReload(release);
+				await installAndReload(release, chooseImpact);
 			} catch (error) {
 				console.error("Violet local installation failed:", error);
 				await vscode.window.showErrorMessage(`Violet: ${error.message}`);

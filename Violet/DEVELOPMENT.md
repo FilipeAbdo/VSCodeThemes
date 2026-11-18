@@ -251,6 +251,9 @@ scripts, commits the files, then creates an annotated tag matching the version o
 The commit includes the Copilot co-author trailer. No build, test, push, extension
 installation, or publication is performed by this command.
 An existing tag or an invalid version is rejected before modifying files.
+If the repository is not clean, the command prints a red **Release blocked**
+message and exits unsuccessfully without throwing an exception or changing files.
+Release installation stops at this check too.
 If a later Git/npm operation fails, inspect the working tree, commits, and tags
 before retrying; changes are not automatically rolled back.
 
@@ -329,6 +332,11 @@ repository: commit your changes and stop build/AI watchers first. To choose anot
 increment, use `npm run install:local:release -- --significant` (or `-i`) for minor,
 or `npm run install:local:release -- --major` (or `-m`) for major.
 The release VS Code task/shortcut uses the default patch increment.
+In the development extension, **Ctrl+K, Ctrl+/** opens **Violet Theme: Choose
+Release Impact, Install and Reload**. Select **Patch**, **Minor**, or **Major**
+to run the corresponding release install task; Escape cancels without changes.
+The same clean-repository requirement applies. Reload happens only after a
+successful installation.
 Development installs do not increment, commit, or tag.
 Versioning failure prevents building/installing. If building or installing fails
 after versioning succeeds, the commit/tag remain; inspect them before retrying,

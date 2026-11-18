@@ -7,12 +7,14 @@ module.exports = function buildDevelopment(root, destination) {
 	manifest.contributes.commands = [
 		...(manifest.contributes.commands || []),
 		{ command, title: "Violet Theme: Install Locally and Reload Window" },
-		{ command: "violetTheme.installReleaseAndReload", title: "Violet Theme: Install Release Locally and Reload Window" }
+		{ command: "violetTheme.installReleaseAndReload", title: "Violet Theme: Install Release Locally and Reload Window" },
+		{ command: "violetTheme.chooseReleaseAndReload", title: "Violet Theme: Choose Release Impact, Install and Reload" }
 	];
 	manifest.contributes.keybindings = [
 		...(manifest.contributes.keybindings || []),
 		{ command, key: "ctrl+k ctrl+i", when: "workspaceFolderCount > 0" },
 		{ command: "violetTheme.installReleaseAndReload", key: "ctrl+k ctrl+shift+i", when: "workspaceFolderCount > 0" },
+		{ command: "violetTheme.chooseReleaseAndReload", key: "ctrl+k ctrl+/", when: "workspaceFolderCount > 0" },
 		{
 			command: "workbench.action.tasks.runTask",
 			args: "Toggle Violet dev environment",

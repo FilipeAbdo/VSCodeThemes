@@ -51,8 +51,16 @@ test("release commits synchronized version files before tagging in a nested proj
 		assert.throws(() => createRelease(invalid, root), /Usage/);
 	}
 	fs.writeFileSync(path.join(repository, "unrelated.txt"), "Keep this change");
-	assert.throws(() => createRelease("1.2.3", root), /Commit or stash/);
+	const messages = [];
+	const errorLog = t.mock.method(console, "error", message => messages.push(message));
+	assert.equal(createRelease("1.2.3", root), null);
+	errorLog.mock.restore();
+	assert.deepStrictEqual(messages, [
+		"\x1b[31mRelease blocked: repository is not clean. Commit or stash all repository changes before creating a release. Stop build watchers first.\x1b[0m"
+	]);
 	assert.equal(git(["rev-parse", "HEAD"]), originalHead);
+	assert.equal(git(["tag", "--list"]), "");
+	assert.equal(JSON.parse(fs.readFileSync(path.join(root, "package.json"))).version, "0.1.0");
 	fs.unlinkSync(path.join(repository, "unrelated.txt"));
 	git(["tag", "1.2.3"]);
 	assert.throws(() => createRelease("1.2.3", root), /already exists/);

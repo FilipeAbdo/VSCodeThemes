@@ -24,6 +24,8 @@
     "toggle:env": "node scripts/dev-target.cjs",
     "install:local": "node scripts/install-local.cjs",
     "install:local:release": "node scripts/install-local.cjs --release",
+    "install:local:release:minor": "node scripts/install-local.cjs --release --significant",
+    "install:local:release:major": "node scripts/install-local.cjs --release --major",
     "vscode:prepublish": "npm run build"
   },
   "devDependencies": {

@@ -24,7 +24,10 @@ async function installLocal() {
 		|| (!release && options.length)) {
 		throw new Error("Usage: npm run install:local:release [-- --significant|-i|--major|-m]. Version flags require --release.");
 	}
-	if (release) require("./release.cjs")(options[0], root);
+	if (release && require("./release.cjs")(options[0], root) === null) {
+		process.exitCode = 1;
+		return;
+	}
 	await require("./build-theme.cjs");
 
 	const files = [

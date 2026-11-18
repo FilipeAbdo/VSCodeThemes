@@ -44,6 +44,52 @@ for (const release of [false, true]) test(`${release ? "release" : "development"
 	}
 });
 
+test("release impact picker selects the task, cancels safely, and reloads only on success", async () => {
+	for (const [label, expectedTask] of [
+		["Patch", "Install Violet release locally"],
+		["Minor", "Install Violet minor release locally"],
+		["Major", "Install Violet major release locally"],
+		[undefined, undefined]
+	]) {
+		for (const exitCode of [0, 1]) {
+			let endTask;
+			let fetched = false;
+			let executed = false;
+			let reloaded = false;
+			const task = { name: expectedTask };
+			const vscode = {
+				window: {
+					async showQuickPick(items) {
+						return items.find(item => item.label === label);
+					}
+				},
+				tasks: {
+					async fetchTasks() { fetched = true; return [task]; },
+					onDidEndTaskProcess(callback) { endTask = callback; return { dispose() {} }; },
+					async executeTask(selected) {
+						assert.equal(selected.name, expectedTask);
+						executed = true;
+						endTask({ execution: { task: selected }, exitCode });
+					}
+				},
+				commands: { async executeCommand() { reloaded = true; } }
+			};
+			const sandbox = {
+				module: { exports: {} },
+				require: name => name === "vscode" ? vscode
+					: name === "./package.json" ? require("../package.json") : require(name)
+			};
+			vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "extension.cjs"), "utf8"), sandbox);
+			const result = sandbox.module.exports.installAndReload(true, true);
+			if (label && exitCode !== 0) await assert.rejects(result, /Window not reloaded/);
+			else await result;
+			assert.equal(fetched, Boolean(label));
+			assert.equal(executed, Boolean(label));
+			assert.equal(reloaded, Boolean(label) && exitCode === 0);
+		}
+	}
+});
+
 test("local installer switches between development and release in the same directory", async () => {
 	const root = path.join(__dirname, "..");
 	const home = fs.mkdtempSync(path.join(require("node:os").tmpdir(), "violet-install-"));
@@ -85,6 +131,37 @@ test("local installer switches between development and release in the same direc
 		}
 	} finally {
 		fs.rmSync(home, { recursive: true });
+	}
+});
+
+test("release install handles a blocked repository without throwing and still reports unexpected failures", async () => {
+	for (const blocked of [true, false]) {
+		const errors = [];
+		const sandbox = {
+			module: { exports: {} },
+			__dirname,
+			process: { argv: ["node", "install-local.cjs", "--release"], exitCode: 0 },
+			console: { log() {}, error: error => errors.push(error) },
+			require(name) {
+				if (name === "./dev-target.cjs") return { getDestination: () => path.join(__dirname, "not-installed") };
+				if (name === "node:fs") return { existsSync: () => false };
+				if (name === "./release.cjs") return () => {
+					if (blocked) return null;
+					throw new Error("Unexpected Git failure");
+				};
+				if (name === "./build-theme.cjs") assert.fail("Blocked release must not build or copy");
+				return require(name);
+			}
+		};
+		vm.runInNewContext(fs.readFileSync(path.join(__dirname, "install-local.cjs"), "utf8"), sandbox);
+		if (blocked) {
+			await sandbox.module.exports;
+			assert.deepStrictEqual(errors, []);
+		} else {
+			await assert.rejects(sandbox.module.exports, /Unexpected Git failure/);
+			assert.equal(errors.length, 1);
+		}
+		assert.equal(sandbox.process.exitCode, 1);
 	}
 });
 
@@ -157,6 +234,9 @@ test("development build adds shortcuts without changing the release manifest", (
 		}, {
 			command: "violetTheme.installReleaseAndReload",
 			title: "Violet Theme: Install Release Locally and Reload Window"
+		}, {
+			command: "violetTheme.chooseReleaseAndReload",
+			title: "Violet Theme: Choose Release Impact, Install and Reload"
 		}]);
 		assert.deepStrictEqual(development.contributes.keybindings, [{
 			command: "violetTheme.installAndReload",
@@ -165,6 +245,10 @@ test("development build adds shortcuts without changing the release manifest", (
 		}, {
 			command: "violetTheme.installReleaseAndReload",
 			key: "ctrl+k ctrl+shift+i",
+			when: "workspaceFolderCount > 0"
+		}, {
+			command: "violetTheme.chooseReleaseAndReload",
+			key: "ctrl+k ctrl+/",
 			when: "workspaceFolderCount > 0"
 		}, {
 			command: "workbench.action.tasks.runTask",
@@ -358,7 +442,8 @@ for (const development of [false, true]) test(`unused decorations and command re
 				const manifest = structuredClone(require("../package.json"));
 				if (development) manifest.contributes.commands = [
 					{ command: "violetTheme.installAndReload" },
-					{ command: "violetTheme.installReleaseAndReload" }
+					{ command: "violetTheme.installReleaseAndReload" },
+					{ command: "violetTheme.chooseReleaseAndReload" }
 				];
 				return manifest;
 			}
@@ -372,7 +457,7 @@ for (const development of [false, true]) test(`unused decorations and command re
 	vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "extension.cjs"), "utf8"), sandbox);
 	sandbox.module.exports.activate({ subscriptions, extensionUri: "file:///installed-violet" });
 	assert.deepStrictEqual(registeredCommands, development
-		? ["violetTheme.previewPalette", "violetTheme.installAndReload", "violetTheme.installReleaseAndReload"] : ["violetTheme.previewPalette"]);
+		? ["violetTheme.previewPalette", "violetTheme.installAndReload", "violetTheme.installReleaseAndReload", "violetTheme.chooseReleaseAndReload"] : ["violetTheme.previewPalette"]);
 	await commandHandlers.get("violetTheme.previewPalette")();
 	assert.deepStrictEqual(opened, [["vscode.open", "file:///installed-violet/images/palette.png"]]);
 	assert.equal(options.fontStyle, "italic");

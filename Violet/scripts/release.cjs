@@ -30,7 +30,8 @@ function createRelease(request, root = path.join(__dirname, "..")) {
 	}).trim();
 	git(["symbolic-ref", "--quiet", "HEAD"]);
 	if (git(["status", "--porcelain", "--untracked-files=normal"])) {
-		throw new Error("Commit or stash all repository changes before creating a release. Stop build watchers first.");
+		console.error("\x1b[31mRelease blocked: repository is not clean. Commit or stash all repository changes before creating a release. Stop build watchers first.\x1b[0m");
+		return null;
 	}
 	if (git(["tag", "--list", version])) {
 		throw new Error(`Tag ${version} already exists. No files changed.`);
@@ -59,7 +60,7 @@ function createRelease(request, root = path.join(__dirname, "..")) {
 if (require.main === module) {
 	try {
 		if (process.argv.length > 3) throw new Error(usage);
-		createRelease(process.argv[2]);
+		if (createRelease(process.argv[2]) === null) process.exitCode = 1;
 	} catch (error) {
 		console.error(error.message);
 		if (error.stderr) console.error(error.stderr.toString().trim());

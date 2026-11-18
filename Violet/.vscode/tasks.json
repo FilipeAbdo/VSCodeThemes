@@ -48,6 +48,18 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Install Violet minor release locally",
+			"type": "npm",
+			"script": "install:local:release:minor",
+			"problemMatcher": []
+		},
+		{
+			"label": "Install Violet major release locally",
+			"type": "npm",
+			"script": "install:local:release:major",
+			"problemMatcher": []
+		},
+		{
 			"label": "Install Violet theme locally",
 			"type": "npm",
 			"script": "install:local",
